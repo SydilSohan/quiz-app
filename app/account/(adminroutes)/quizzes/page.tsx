@@ -48,6 +48,8 @@ export function TableDemo({
         <TableRow>
           <TableHead className="w-[100px]">ID</TableHead>
           <TableHead>Name</TableHead>
+          <TableHead>Link</TableHead>
+
           <TableHead className="text-right">Action</TableHead>
         </TableRow>
       </TableHeader>
@@ -57,6 +59,14 @@ export function TableDemo({
             <TableCell className="font-medium">{quiz.id}</TableCell>
 
             <TableCell className="font-medium">{quiz.name}</TableCell>
+            <TableCell className="font-medium">
+              {process.env.NEXT_PUBLIC_SITE_URL! +
+                "/exam/" +
+                quiz.name +
+                "/" +
+                quiz.id}
+            </TableCell>
+
             <TableCell className="text-right">
               <Button asChild>
                 <Link href={"/account/quizzes/compose/" + quiz.id}>Edit</Link>

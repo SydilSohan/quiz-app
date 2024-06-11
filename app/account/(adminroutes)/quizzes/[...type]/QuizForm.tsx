@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Tables } from "@/types/supabase";
+import { Tables } from "@/types/database";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType, QuizValues, QuizValuesSchema } from "@/types/schemas";
 import SubmitButton from "@/components/global/SubmitButton";
@@ -24,6 +24,7 @@ import Image from "next/image";
 import { DeleteIcon, Trash2Icon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useEffect } from "react";
 
 const OptionFieldsNew = ({ form, questionIndex }: any) => {
   const { fields, append, remove } = useFieldArray({
@@ -107,11 +108,20 @@ export default function QuizForm({ quiz }: Props) {
   const router = useRouter();
   const form = useForm<QuizValues>({
     resolver: zodResolver(QuizValuesSchema),
-    defaultValues: {
-      name: quiz?.name || "",
-      instructions: quiz?.instructions || "",
-      questions: (quiz?.questions as QuestionType[]) || [],
-    },
+    defaultValues: quiz
+      ? {
+          name: quiz?.name,
+          instructions: quiz?.instructions,
+          questions: quiz!.questions!.map((q) => ({
+            id: q.id,
+            name: q.name,
+            type: q.type,
+            options: q.options,
+            image: q.image,
+            answer: quiz?.answers?.find((a) => a.id === q.id)?.answer,
+          })),
+        }
+      : undefined,
   });
   const {
     fields: questionFields,
@@ -121,12 +131,16 @@ export default function QuizForm({ quiz }: Props) {
     control: form.control,
     name: "questions",
   });
-
+  useEffect(() => {
+    console.log(form.formState.errors, "errors");
+  }, [form.formState.errors]);
   const onSubmit = async (data: QuizValues) => {
     console.log(data, "data");
     //upload all images to supabase first and store the file path in the database
     const supabase = createClient();
-
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const uploadPromises = data.questions.map(async (question) => {
       if (!question.image || question.image instanceof File === false)
         return question;
@@ -150,21 +164,50 @@ export default function QuizForm({ quiz }: Props) {
       error: "Error while uploading images",
     });
 
-    const { error } = await supabase.from("quizzes").upsert({
-      id: quiz?.id,
-      name: data.name,
-      instructions: data.instructions,
-      questions: dataWithImagePath
-        .filter((q) => q !== undefined)
-        .map((question) => ({
-          id: question!.id,
-          name: question!.name,
-          type: question!.type,
-          options: question!.options,
-          answer: question!.answer,
-          image: question!.image,
-        })),
-    });
+    const { error } = !quiz?.id
+      ? await supabase.from("quizzes").insert({
+          name: data.name,
+          instructions: data.instructions,
+          user_id: user?.id,
+          questions: dataWithImagePath
+            .filter((q) => q !== undefined)
+            .map((question) => ({
+              id: question!.id,
+              name: question!.name,
+              type: question!.type,
+              options: question!.options,
+              image: question!.image,
+            })),
+          answers: dataWithImagePath
+            .filter((q) => q !== undefined)
+            .map((question) => ({
+              id: question!.id,
+              answer: question!.answer,
+            })),
+        })
+      : await supabase
+          .from("quizzes")
+          .update({
+            name: data.name,
+            instructions: data.instructions,
+            user_id: user?.id,
+            questions: dataWithImagePath
+              .filter((q) => q !== undefined)
+              .map((question) => ({
+                id: question!.id,
+                name: question!.name,
+                type: question!.type,
+                options: question!.options,
+                image: question!.image,
+              })),
+            answers: dataWithImagePath
+              .filter((q) => q !== undefined)
+              .map((question) => ({
+                id: question!.id,
+                answer: question!.answer,
+              })),
+          })
+          .eq("id", quiz?.id!);
     error
       ? toast.error("Error", {
           description: error.message,
@@ -176,8 +219,13 @@ export default function QuizForm({ quiz }: Props) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-wrap gap-4 max-w-screen-sm"
+        className="flex flex-wrap gap-4 max-w-screen-sm "
       >
+        <div className=" sticky top-0">
+          <SubmitButton isLoading={form.formState.isSubmitting}>
+            Submit
+          </SubmitButton>
+        </div>
         <FormField
           control={form.control}
           name={`name` as const}
@@ -368,11 +416,6 @@ export default function QuizForm({ quiz }: Props) {
           >
             Add Beer Sampling Question
           </Button>
-        </div>
-        <div className="grid lg:col-span-3">
-          <SubmitButton isLoading={form.formState.isSubmitting}>
-            Submit
-          </SubmitButton>
         </div>
       </form>
     </Form>

@@ -1,6 +1,6 @@
 import { MergeDeep } from 'type-fest'
 import { Database as DatabaseGenerated, Tables as TablesGenerated  } from './supabase';
-import {QuestionType} from './schemas'
+import {AnswerColumnType, AnswerType, QuestionColumnType, QuestionType} from './schemas'
 export type { Json } from './supabase'
 
 // Override the type for a specific column in a view:
@@ -11,15 +11,33 @@ export type Database = MergeDeep<
         Tables : {
             quizzes : {
                 Row : {
-                    questions: QuestionType[];
+                    questions: QuestionColumnType[];
+                    answers : AnswerColumnType[];
                 }
                 Insert : {
-                    questions: QuestionType[];
+                   questions: QuestionColumnType[];
+                    answers : AnswerColumnType[];
                 }
                 Update : {
-                    questions: QuestionType[];
+                    questions: QuestionColumnType[];
+                    answers : AnswerColumnType[];
                 }
             }
+        }
+        Views : {
+          exam  : {
+            Row : {
+              questions: QuestionColumnType[];
+            
+            }
+            Insert : {
+              questions: QuestionColumnType[];
+            
+            },
+            Update : {
+              questions: QuestionColumnType[];
+            }
+          }
         }
     }
   }

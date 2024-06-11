@@ -53,7 +53,29 @@ export type Database = {
           id?: number
           quiz?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_answers_quiz_fkey"
+            columns: ["quiz"]
+            isOneToOne: false
+            referencedRelation: "exam"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_answers_quiz_fkey"
+            columns: ["quiz"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_answers_quiz_fkey"
+            columns: ["quiz"]
+            isOneToOne: false
+            referencedRelation: "userquiz"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -84,34 +106,144 @@ export type Database = {
       }
       quizzes: {
         Row: {
+          answers: Json | null
           created_at: string
           id: number
           image: string | null
+          inst: string | null
           instructions: string
+          logo: string | null
           name: string
           questions: Json
+          time: number | null
+          user_id: string | null
         }
         Insert: {
+          answers?: Json | null
           created_at?: string
           id?: number
           image?: string | null
-          instructions: string
-          name: string
+          inst?: string | null
+          instructions?: string
+          logo?: string | null
+          name?: string
           questions: Json
+          time?: number | null
+          user_id?: string | null
         }
         Update: {
+          answers?: Json | null
           created_at?: string
           id?: number
           image?: string | null
+          inst?: string | null
           instructions?: string
+          logo?: string | null
           name?: string
           questions?: Json
+          time?: number | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_quizzes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      exam: {
+        Row: {
+          id: number | null
+          image: string | null
+          inst: string | null
+          instructions: string | null
+          logo: string | null
+          name: string | null
+          questions: Json | null
+          time: number | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: number | null
+          image?: string | null
+          inst?: string | null
+          instructions?: string | null
+          logo?: string | null
+          name?: string | null
+          questions?: Json | null
+          time?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: number | null
+          image?: string | null
+          inst?: string | null
+          instructions?: string | null
+          logo?: string | null
+          name?: string | null
+          questions?: Json | null
+          time?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_quizzes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      userquiz: {
+        Row: {
+          id: number | null
+          image: string | null
+          inst: string | null
+          instructions: string | null
+          logo: string | null
+          name: string | null
+          questions: Json | null
+          time: number | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: number | null
+          image?: string | null
+          inst?: string | null
+          instructions?: string | null
+          logo?: string | null
+          name?: string | null
+          questions?: Json | null
+          time?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: number | null
+          image?: string | null
+          inst?: string | null
+          instructions?: string | null
+          logo?: string | null
+          name?: string | null
+          questions?: Json | null
+          time?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_quizzes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

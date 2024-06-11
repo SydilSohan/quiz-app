@@ -35,6 +35,7 @@ import SubmitButton from "@/components/global/SubmitButton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Tables } from "@/types/database";
 type Props = {
   questions: {
     id: number;
@@ -43,11 +44,12 @@ type Props = {
     options?: string[];
     image?: string;
   }[];
-  quizId: number;
-  instructions: string | null;
-  name: string | null;
-  proceed: boolean;
+  quizId?: number;
+  instructions?: string | null;
+  name?: string | null;
+  proceed?: boolean;
   failed?: boolean;
+  exam?: Tables<"exam"> | null;
 };
 const ansSchema = z.object({
   questionId: z.coerce.number(),
@@ -110,157 +112,158 @@ const SingleQuiz = ({
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="w-full space-y-6"
               >
-                {questions.map((question) => (
-                  <Card key={question.id}>
-                    <CardHeader>
-                      <CardTitle className="mb-4">{question.name}</CardTitle>
-                      {question?.image && (
-                        <Image
-                          src={
-                            process.env.NEXT_PUBLIC_QUIZASSETS_URL +
-                            question?.image
-                          }
-                          alt={question?.name}
-                          width={400}
-                          height={200}
-                          className="drop-shadow-sm rounded-md mt-2 object-cover"
+                {questions &&
+                  questions.map((question) => (
+                    <Card key={question.id}>
+                      <CardHeader>
+                        <CardTitle className="mb-4">{question.name}</CardTitle>
+                        {question?.image && (
+                          <Image
+                            src={
+                              process.env.NEXT_PUBLIC_QUIZASSETS_URL +
+                              question?.image
+                            }
+                            alt={question?.name}
+                            width={300}
+                            height={150}
+                            className="drop-shadow-sm rounded-md mt-2 object-cover w-1/2"
+                          />
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <input
+                          type="hidden"
+                          {...form.register(`${question.id}.questionId`)}
+                          value={question.id}
                         />
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <input
-                        type="hidden"
-                        {...form.register(`${question.id}.questionId`)}
-                        value={question.id}
-                      />
-                      {question?.type === "sampling" && (
-                        <FormField
-                          control={form.control}
-                          name={`${question.id}.answer`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Answer</FormLabel>
-                              <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select your answer" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {question?.options?.map((option) => (
-                                    <SelectItem key={option} value={option}>
-                                      {option}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                        {question?.type === "sampling" && (
+                          <FormField
+                            control={form.control}
+                            name={`${question.id}.answer`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Answer</FormLabel>
+                                <Select onValueChange={field.onChange}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select your answer" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {question?.options?.map((option) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
 
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                      {question?.type === "mcq" && (
-                        <FormField
-                          control={form.control}
-                          name={`${question.id}.answer`}
-                          render={() => (
-                            <FormItem>
-                              {question?.options?.map((item, index) => (
-                                <FormField
-                                  key={index}
-                                  control={form.control}
-                                  name={`${question.id}.answer`}
-                                  render={({ field }) => {
-                                    return (
-                                      <FormItem
-                                        key={index}
-                                        className="flex flex-row items-start space-x-3 space-y-0"
-                                      >
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value === item}
-                                            onCheckedChange={(checked) => {
-                                              field.onChange(
-                                                checked ? item : ""
-                                              );
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">
-                                          {item}
-                                        </FormLabel>
-                                      </FormItem>
-                                    );
-                                  }}
-                                />
-                              ))}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                      {question?.type === "truefalse" && (
-                        <FormField
-                          control={form.control}
-                          name={`${question.id}.answer`}
-                          render={() => (
-                            <FormItem>
-                              {question?.options?.map((item, index) => (
-                                <FormField
-                                  key={index}
-                                  control={form.control}
-                                  name={`${question.id}.answer`}
-                                  render={({ field }) => {
-                                    return (
-                                      <FormItem
-                                        key={index}
-                                        className="flex flex-row items-start space-x-3 space-y-0"
-                                      >
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value === item}
-                                            onCheckedChange={(checked) => {
-                                              field.onChange(
-                                                checked ? item : ""
-                                              );
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">
-                                          {item}
-                                        </FormLabel>
-                                      </FormItem>
-                                    );
-                                  }}
-                                />
-                              ))}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                      {question?.type === "fill" && (
-                        <FormField
-                          name={`${question.id}.answer`}
-                          control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="your answer"
-                                  type="text"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                        {question?.type === "mcq" && (
+                          <FormField
+                            control={form.control}
+                            name={`${question.id}.answer`}
+                            render={() => (
+                              <FormItem>
+                                {question?.options?.map((item, index) => (
+                                  <FormField
+                                    key={index}
+                                    control={form.control}
+                                    name={`${question.id}.answer`}
+                                    render={({ field }) => {
+                                      return (
+                                        <FormItem
+                                          key={index}
+                                          className="flex flex-row items-start space-x-3 space-y-0"
+                                        >
+                                          <FormControl>
+                                            <Checkbox
+                                              checked={field.value === item}
+                                              onCheckedChange={(checked) => {
+                                                field.onChange(
+                                                  checked ? item : ""
+                                                );
+                                              }}
+                                            />
+                                          </FormControl>
+                                          <FormLabel className="font-normal">
+                                            {item}
+                                          </FormLabel>
+                                        </FormItem>
+                                      );
+                                    }}
+                                  />
+                                ))}
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                        {question?.type === "truefalse" && (
+                          <FormField
+                            control={form.control}
+                            name={`${question.id}.answer`}
+                            render={() => (
+                              <FormItem>
+                                {question?.options?.map((item, index) => (
+                                  <FormField
+                                    key={index}
+                                    control={form.control}
+                                    name={`${question.id}.answer`}
+                                    render={({ field }) => {
+                                      return (
+                                        <FormItem
+                                          key={index}
+                                          className="flex flex-row items-start space-x-3 space-y-0"
+                                        >
+                                          <FormControl>
+                                            <Checkbox
+                                              checked={field.value === item}
+                                              onCheckedChange={(checked) => {
+                                                field.onChange(
+                                                  checked ? item : ""
+                                                );
+                                              }}
+                                            />
+                                          </FormControl>
+                                          <FormLabel className="font-normal">
+                                            {item}
+                                          </FormLabel>
+                                        </FormItem>
+                                      );
+                                    }}
+                                  />
+                                ))}
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                        {question?.type === "fill" && (
+                          <FormField
+                            name={`${question.id}.answer`}
+                            control={form.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="your answer"
+                                    type="text"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
                 <div>
                   {Object.keys(form.formState.errors).length > 0 && (
                     <p className="text-red-500">
