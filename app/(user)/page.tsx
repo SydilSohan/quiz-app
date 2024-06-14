@@ -5,14 +5,8 @@ import {
   CardContainer,
   CardItem,
 } from "@/components/aceternity/3d-card";
-import {
-  HeroHighlight,
-  Highlight,
-} from "@/components/aceternity/hero-highlight";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HeroHighlight } from "@/components/aceternity/hero-highlight";
 import Image from "next/image";
-import { LampContainer } from "@/components/aceternity/lamp";
-import { motion } from "framer-motion";
 export const metadata: Metadata = {
   title: config.appName,
   description: config.metaDescription,
