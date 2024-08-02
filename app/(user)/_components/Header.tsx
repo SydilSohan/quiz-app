@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
-import DropDown from "@/components/auth/DropDown";
+import DropDown from "@/components/dnd/auth/DropDown";
 import NavigationMenuNew from "./NavMenu";
 import SignInButton from "./SignInButton";
 type Props = {};

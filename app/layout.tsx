@@ -87,18 +87,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ViewTransitions>
-      <html lang="en">
-        <body
-          style={{ scrollBehavior: "smooth" }}
-          className={
-            montserrat.className + "!overflow-x-hidden max-w-[100vw] mx-auto"
-          }
-        >
-          {children}
-          <Toaster richColors />
-        </body>
-      </html>
-    </ViewTransitions>
+    <html lang="en">
+      <body
+        style={{ scrollBehavior: "smooth" }}
+        className={
+          montserrat.className + "!overflow-x-hidden max-w-[100vw] mx-auto"
+        }
+      >
+        {children}
+        <Toaster richColors position="top-right" />
+      </body>
+    </html>
   );
 }

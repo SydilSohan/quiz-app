@@ -1,15 +1,15 @@
-'use client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormField,
@@ -17,11 +17,11 @@ import {
   FormItem,
   FormMessage,
   FormLabel,
-} from '@/components/ui/form';
-import { createClient } from '@/utils/supabase/client';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import SubmitButton from '../global/SubmitButton';
+} from "@/components/ui/form";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import SubmitButton from "../../global/SubmitButton";
 const schema = z.object({
   email: z.string().email(),
 });
@@ -38,11 +38,11 @@ export default function ResetPass({ currentUrl }: { currentUrl?: string }) {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset`,
     });
     error
-      ? toast.error('Error', {
+      ? toast.error("Error", {
           description: error.message,
         })
-      : toast.success('Success', {
-          description: 'Sent email',
+      : toast.success("Success", {
+          description: "Sent email",
         });
     router.refresh();
   };

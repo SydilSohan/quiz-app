@@ -3,9 +3,11 @@ import Link from "next/link";
 import ExamForm from "./QuizForm";
 
 import { createClient } from "@/utils/supabase/server";
-import SingleQuiz from "./SingleQuiz";
+import SingleQuiz from "../../../../exam/[id]/SingleQuiz";
+import { QuestionColumnType, QuestionType } from "@/types/schemas";
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
+
 async function Page({
   params,
 }: {
@@ -14,16 +16,17 @@ async function Page({
   };
 }) {
   const supabase = createClient();
-
-  const { data } = params.type[1]
-    ? await supabase
-        .from("quizzes")
-        .select("*")
-        .eq("id", parseInt(params.type[1]))
-        .single()
+  const possibleParams = ["compose", "preview", "add", "edit"];
+  const id = params.type[1] ? parseInt(params.type[1]) : null;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const type = params.type[0];
+  const { data } = id
+    ? await supabase.from("quizzes").select("*").eq("id", id).single()
     : { data: null };
 
-  if (params.type[0] === "compose")
+  if (type === "compose")
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
         <div className="flex items-center justify-between">
@@ -34,30 +37,28 @@ async function Page({
           <Button asChild className="mt-4">
             <Link href={"/account/quizzes"}>Go Back</Link>
           </Button>
-          {params.type[1] && (
+          {type && (
             <Button asChild className="mt-4">
-              <Link href={"/account/quizzes/preview/" + params.type[1]}>
-                Preview
-              </Link>
+              <Link href={"/account/quizzes/" + id + "/preview"}>Preview </Link>
             </Button>
           )}
         </div>
-        <ExamForm quiz={data} />
+        <ExamForm quiz={data} user={user} />
       </main>
     );
-  console.log(params.type[0] === "preview");
-  if (params.type[0] === "preview") {
+  if (type === "preview") {
     return (
       <main className="p-4">
         <Button asChild className="my-2">
           <Link href={"/account/quizzes/compose/" + params.type[1]}>Edit</Link>
         </Button>
         <SingleQuiz
-          questions={data?.questions!}
+          questions={data?.questions as QuestionColumnType[]}
           instructions={data?.instructions!}
           proceed
           name={data?.name!}
           quizId={data?.id!}
+          userId={user?.id!}
         />
       </main>
     );

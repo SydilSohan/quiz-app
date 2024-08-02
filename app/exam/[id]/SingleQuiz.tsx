@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -35,24 +35,21 @@ import SubmitButton from "@/components/global/SubmitButton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Tables } from "@/types/database";
+import { QuestionColumnType } from "@/types/schemas";
+import { getResults } from "@/app/exam/[id]/action";
+import { Tables } from "@/types/supabase";
 type Props = {
-  questions: {
-    id: number;
-    name: string;
-    type: string;
-    options?: string[];
-    image?: string;
-  }[];
+  questions: QuestionColumnType[];
   quizId?: number;
   instructions?: string | null;
   name?: string | null;
   proceed?: boolean;
   failed?: boolean;
   exam?: Tables<"exam"> | null;
+  userId?: string | null;
 };
 const ansSchema = z.object({
-  questionId: z.coerce.number(),
+  questionId: z.string(),
   answer: z.string().min(1, "Answer is required"),
 });
 
@@ -65,6 +62,8 @@ const SingleQuiz = ({
   name,
   proceed,
   failed,
+  quizId,
+  userId,
 }: Props) => {
   const [currentQIndex, setCurrentQIndex] = React.useState(0);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -88,9 +87,17 @@ const SingleQuiz = ({
   const currentQ = questions[currentQIndex];
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+    console.log(Object.values(data));
+    const { status, message } = await getResults({
+      answers: Object.values(data),
+      quizId: quizId!,
+      userId: userId!,
+    });
+    toast[status](message);
   };
-
+  useEffect(() => {
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
   return (
     <div className="w-full sm:max-w-screen-sm">
       <>
@@ -114,13 +121,15 @@ const SingleQuiz = ({
               >
                 {questions &&
                   questions.map((question) => (
-                    <Card key={question.id}>
+                    <Card className="shadow-none rounded-sm" key={question.id}>
                       <CardHeader>
-                        <CardTitle className="mb-4">{question.name}</CardTitle>
+                        <CardTitle className="mb-4 capitalize text-2xl">
+                          {question.name}
+                        </CardTitle>
                         {question?.image && (
                           <Image
                             src={
-                              process.env.NEXT_PUBLIC_QUIZASSETS_URL +
+                              process.env.NEXT_PUBLIC_QUIZASSETS_URL! +
                               question?.image
                             }
                             alt={question?.name}

@@ -114,9 +114,10 @@ export type Database = {
           instructions: string
           logo: string | null
           name: string
+          privacy: Database["public"]["Enums"]["privacy"]
           questions: Json
           time: number | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           answers?: Json | null
@@ -127,9 +128,10 @@ export type Database = {
           instructions?: string
           logo?: string | null
           name?: string
+          privacy?: Database["public"]["Enums"]["privacy"]
           questions: Json
           time?: number | null
-          user_id?: string | null
+          user_id?: string
         }
         Update: {
           answers?: Json | null
@@ -140,14 +142,72 @@ export type Database = {
           instructions?: string
           logo?: string | null
           name?: string
+          privacy?: Database["public"]["Enums"]["privacy"]
           questions?: Json
           time?: number | null
-          user_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          answers: Json[] | null
+          created_at: string
+          ended_at: string | null
+          grade: string | null
+          id: number
+          quiz_id: number
+          results: Json[] | null
+          score: number | null
+          submitter: string
+        }
+        Insert: {
+          answers?: Json[] | null
+          created_at: string
+          ended_at?: string | null
+          grade?: string | null
+          id?: number
+          quiz_id: number
+          results?: Json[] | null
+          score?: number | null
+          submitter?: string
+        }
+        Update: {
+          answers?: Json[] | null
+          created_at?: string
+          ended_at?: string | null
+          grade?: string | null
+          id?: number
+          quiz_id?: number
+          results?: Json[] | null
+          score?: number | null
+          submitter?: string
         }
         Relationships: [
           {
-            foreignKeyName: "public_quizzes_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "public_submissions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "exam"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_submissions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_submissions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "userquiz"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_submissions_submitter_fkey"
+            columns: ["submitter"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -190,15 +250,13 @@ export type Database = {
           time?: number | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "public_quizzes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      quizzes_view: {
+        Row: {
+          questions: Json | null
+        }
+        Relationships: []
       }
       userquiz: {
         Row: {
@@ -234,22 +292,14 @@ export type Database = {
           time?: number | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "public_quizzes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      privacy: "public" | "private"
     }
     CompositeTypes: {
       [_ in never]: never

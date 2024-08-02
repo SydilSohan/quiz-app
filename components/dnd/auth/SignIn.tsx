@@ -1,7 +1,7 @@
-'use client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -9,9 +9,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormField,
@@ -19,19 +19,19 @@ import {
   FormItem,
   FormMessage,
   FormLabel,
-} from '@/components/ui/form';
-import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+} from "@/components/ui/form";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 // import LoginWithProvider from './LoginWithProvider';
-import Image from 'next/image';
-import { createClient } from '@/utils/supabase/client';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import SubmitButton from '../global/SubmitButton';
+import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import SubmitButton from "../../global/SubmitButton";
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8, {
-    message: 'Password must be at least 8 characters long',
+    message: "Password must be at least 8 characters long",
   }),
 });
 type SchemType = z.infer<typeof schema>;
@@ -52,11 +52,11 @@ export default function ClientLoginForm({
       password: data.password,
     });
     error
-      ? toast.error('Error', {
+      ? toast.error("Error", {
           description: error.message,
         })
-      : toast.success('Success', {
-          description: 'Logged in',
+      : toast.success("Success", {
+          description: "Logged in",
         });
     router.refresh();
   };

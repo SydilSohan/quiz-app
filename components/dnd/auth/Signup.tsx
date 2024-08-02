@@ -1,13 +1,13 @@
-'use client';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -16,17 +16,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useTransition } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import SubmitButton from '@/components/global/SubmitButton';
-import { toast } from 'sonner';
-import { SignUpSchema } from '@/types/schemas';
-import { Checkbox } from '../ui/checkbox';
-import Link from 'next/link';
+} from "../../ui/form";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTransition } from "react";
+import { createClient } from "@/utils/supabase/client";
+import SubmitButton from "@/components/global/SubmitButton";
+import { toast } from "sonner";
+import { SignUpSchema } from "@/types/schemas";
+import { Checkbox } from "../../ui/checkbox";
+import Link from "next/link";
 
 type SIgnUpFormType = z.infer<typeof SignUpSchema>;
 export default function SignUpForm() {
@@ -45,11 +45,11 @@ export default function SignUpForm() {
         },
       },
     });
-    error ? toast.error(error.message) : toast.success('Signup successful!');
+    error ? toast.error(error.message) : toast.success("Signup successful!");
   };
   const [isPending, startTransition] = useTransition();
 
-  const handleSignInOAuth = async (provider: 'google' | 'facebook') => {
+  const handleSignInOAuth = async (provider: "google" | "facebook") => {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -57,7 +57,7 @@ export default function SignUpForm() {
         redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
       },
     });
-    error ? toast.error(error.message) : toast.success('Signup successful!');
+    error ? toast.error(error.message) : toast.success("Signup successful!");
   };
   return (
     <Card className="mx-auto max-w-sm">
@@ -160,10 +160,10 @@ export default function SignUpForm() {
                       />
                     </FormControl>
                     <FormLabel>
-                      I accept the{' '}
+                      I accept the{" "}
                       <Link
                         className="underline"
-                        href={'/terms-and-conditions'}
+                        href={"/terms-and-conditions"}
                       >
                         terms and conditions
                       </Link>
@@ -180,7 +180,7 @@ export default function SignUpForm() {
               </SubmitButton>
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  onClick={() => handleSignInOAuth('google')}
+                  onClick={() => handleSignInOAuth("google")}
                   type="button"
                   variant="outline"
                   className="w-full"

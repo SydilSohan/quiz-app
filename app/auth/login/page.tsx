@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Brand } from "@/app/(user)/_components/Header";
-import ClientLogin from "@/components/auth/ClientLogin";
+import ClientLogin from "@/components/dnd/auth/ClientLogin";
 
 export default async function LoginForm() {
   const supabase = createClient();

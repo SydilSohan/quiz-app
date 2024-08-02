@@ -1,23 +1,63 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { createClient } from "@/utils/supabase/server";
+import Link from "next/link";
 
-function SubmissionsDashboard() {
+async function SubmissionsDashboard() {
+  const sup = createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await sup.auth.getUser();
+  const { data, error } = await sup
+    .from("submissions")
+    .select("*")
+    .neq("submitter", user?.id);
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-      <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">Inventory</h1>
-      </div>
-      <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h3 className="text-2xl font-bold tracking-tight">
-            You have no Routes
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            You can start selling as soon as you add a Route.
-          </p>
-          <Button className="mt-4">Approve Submissions</Button>
-        </div>
-      </div>
-    </main>
+    <div className="border-solid border-2 border-gray-400  rounded-sm p-4 w-full grid col-span-2">
+      <Table>
+        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Link</TableHead>
+
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data?.map((sub) => (
+            <TableRow key={sub.id}>
+              <TableCell className="font-medium">{sub.id}</TableCell>
+
+              <TableCell className="font-medium">{sub.id}</TableCell>
+              <TableCell className="font-medium"></TableCell>
+
+              <TableCell className="text-right">
+                <Button asChild>
+                  <Link
+                    href={`/account/submissions?${new URLSearchParams({
+                      id: sub.id.toString(),
+                    })}`}
+                  >
+                    View
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 export default SubmissionsDashboard;

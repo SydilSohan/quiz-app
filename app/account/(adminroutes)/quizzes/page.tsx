@@ -4,9 +4,13 @@ import Link from "next/link";
 
 async function QuizzesPage() {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from("quizzes")
     .select("id, name")
+    .eq("user_id", user?.id!)
     .limit(10);
   if (error) throw new Error("An error occurred while fetching quizzes");
   return (
@@ -42,39 +46,39 @@ export function TableDemo({
   quizzes: Partial<Tables<"quizzes">>[];
 }) {
   return (
-    <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">ID</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Link</TableHead>
+    <main>
+      <Table>
+        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Link</TableHead>
 
-          <TableHead className="text-right">Action</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {quizzes.map((quiz) => (
-          <TableRow key={quiz.id}>
-            <TableCell className="font-medium">{quiz.id}</TableCell>
-
-            <TableCell className="font-medium">{quiz.name}</TableCell>
-            <TableCell className="font-medium">
-              {process.env.NEXT_PUBLIC_SITE_URL! +
-                "/exam/" +
-                quiz.name +
-                "/" +
-                quiz.id}
-            </TableCell>
-
-            <TableCell className="text-right">
-              <Button asChild>
-                <Link href={"/account/quizzes/compose/" + quiz.id}>Edit</Link>
-              </Button>
-            </TableCell>
+            <TableHead className="text-right">Action</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {quizzes.map((quiz) => (
+            <TableRow key={quiz.id}>
+              <TableCell className="font-medium">{quiz.id}</TableCell>
+
+              <TableCell className="font-medium">{quiz.name}</TableCell>
+              <TableCell className="font-medium">
+                {process.env.NEXT_PUBLIC_SITE_URL! + "/exam/" + quiz.id}
+              </TableCell>
+
+              <TableCell className="text-right">
+                <Button asChild>
+                  <Link href={`/account/quizzes/compose/${quiz.id}/`}>
+                    Edit
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </main>
   );
 }

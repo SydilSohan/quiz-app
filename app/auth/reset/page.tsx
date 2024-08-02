@@ -1,4 +1,4 @@
-import SecurityForm from "@/components/auth/SecurityForm";
+import SecurityForm from "@/components/dnd/auth/SecurityForm";
 
 const page = () => {
   return (

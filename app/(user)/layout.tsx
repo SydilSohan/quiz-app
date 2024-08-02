@@ -8,9 +8,9 @@ export default function UserLayout({
 }>) {
   return (
     <div className=" ">
-      <Header />
+      {/* <Header /> */}
       {children}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

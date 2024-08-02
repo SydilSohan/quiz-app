@@ -26,7 +26,7 @@ export const SignUpSchema = z
   });
 
 const Question = z.object({
-  id: z.coerce.number(),
+  id: z.string(),
   name: z.string().min(1, {
     message: "Name is required.",
   }),
@@ -64,7 +64,7 @@ const questionColumn = z.object({
   image: z.any().optional(),
 });
 const answersColumn = z.object({
-  id: z.coerce.number(),
+  id: z.string(),
   answer: z.string().min(1, {
     message: "Answer is required.",
   }),
@@ -82,6 +82,7 @@ export const QuizValuesSchema = z.object({
   instructions: z.string().min(1, {
     message: "Instructions are required.",
   }),
+  privacy: z.enum(["private", "public"]).optional(),
   time: z.number().optional(),
   logo: z.any().optional(),
   image: z.any().optional(),

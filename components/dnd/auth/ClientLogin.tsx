@@ -2,8 +2,8 @@
 
 import useGetUser from "@/hooks/useGetUser";
 import AuthTabs from "./AuthTab";
-import Loader from "../global/Loader";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import Loader from "../../global/Loader";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Link } from "next-view-transitions";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";

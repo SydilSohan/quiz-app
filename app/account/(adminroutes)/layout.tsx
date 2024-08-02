@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   BeerIcon,
   FileQuestionIcon,
+  GraduationCap,
   Home,
   MapIcon,
   Menu,
@@ -15,6 +16,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/server";
 import SingleNav from "@/components/global/SingleNav";
 import BreadCrumbs from "@/components/global/BreadCrumbs";
+import Signout from "./Signout";
+import { redirect } from "next/navigation";
 
 async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const userNavigation = [
@@ -29,24 +32,25 @@ async function DashboardLayout({ children }: { children: React.ReactNode }) {
       href: "/account/quizzes",
       icon: <FileQuestionIcon size={18} />,
     },
-    {
-      label: "orders",
-      href: "/account/orders",
-      icon: <ShoppingCart size={18} />,
-    },
+
     {
       label: "Submissions",
-      href: "/account/route-status",
+      href: "/account/submissions",
       icon: <ShoppingCart size={18} />,
     },
+    {
+      label: "Exams Taken",
+      href: "/account/taken",
+      icon: <GraduationCap size={18} />,
+    },
   ];
-  /*   const { data, error } = await supabase.auth.getUser();
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.getUser();
   const { data: role, error: perr } = await supabase
-    .from('profiles')
-    .select('role')
+    .from("profiles")
+    .select("role")
     .single();
-  if (role?.role === 'user') return redirect('/account/dashboard');
-  if (error) redirect(`/login?status=failed`); */
+  if (error) redirect(`/auth/login?status=failed`);
 
   return (
     <div className="grid min-h-screen max-w-[100vw] overflow-x-hidden md:w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -62,6 +66,7 @@ async function DashboardLayout({ children }: { children: React.ReactNode }) {
               {userNavigation.map((nav, i) => (
                 <SingleNav key={i} item={nav} />
               ))}
+              <Signout />
             </nav>
           </div>
         </div>

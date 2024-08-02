@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AlignJustify } from "lucide-react";
 import React from "react";
-import ScrollLink from "../global/ScrollLink";
+import ScrollLink from "../../global/ScrollLink";
 type Props = {};
 import { navigation } from "@/app/(user)/_components/Header";
 import SignInButton from "@/app/(user)/_components/SignInButton";
