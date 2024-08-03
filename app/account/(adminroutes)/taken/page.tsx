@@ -18,19 +18,15 @@ async function SubmissionsDashboard() {
   } = await sup.auth.getUser();
   const { data, error } = await sup
     .from("submissions")
-    .select("*")
+    .select("*, profiles (first_name)")
     .eq("submitter", user?.id!);
   return (
-    <div className="grid col-span-3">
+    <div className="border-solid border-2 border-gray-400  rounded-sm p-4 w-full grid col-span-2">
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Link</TableHead>
-
-            <TableHead className="text-right">Action</TableHead>
+            <TableHead>Examinee</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -38,18 +34,14 @@ async function SubmissionsDashboard() {
             <TableRow key={sub.id}>
               <TableCell className="font-medium">{sub.id}</TableCell>
 
-              <TableCell className="font-medium">{sub.id}</TableCell>
+              <TableCell className="font-medium">
+                {sub.profiles?.first_name}
+              </TableCell>
               <TableCell className="font-medium"></TableCell>
 
-              <TableCell className="text-right">
+              <TableCell className="text-left">
                 <Button asChild>
-                  <Link
-                    href={`/account/taken?${new URLSearchParams({
-                      id: sub.id.toString(),
-                    })}`}
-                  >
-                    View
-                  </Link>
+                  <Link href={`/account/taken/${sub.id}`}>View</Link>
                 </Button>
               </TableCell>
             </TableRow>

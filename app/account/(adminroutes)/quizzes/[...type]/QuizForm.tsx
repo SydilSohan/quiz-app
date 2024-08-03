@@ -200,7 +200,6 @@ export default function QuizForm({ quiz, user }: Props) {
     router.refresh();
   };
   function handleDragEnd(event: DragEndEvent) {
-    console.log(event);
     const { active, over } = event;
 
     if (active.id !== over?.id) {
@@ -272,6 +271,7 @@ export default function QuizForm({ quiz, user }: Props) {
                   id={field.id}
                   index={index}
                   name={field.name}
+                  removeQuestion={removeQuestion}
                   // className="space-y-4 w-full py-2 px-6 shadow-lg rounded-md"
                 >
                   <AccordionContent className="gap-4 space-y-4 flex-row flex-wrap flex">

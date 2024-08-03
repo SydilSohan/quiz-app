@@ -1,16 +1,25 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripIcon } from "lucide-react";
+import { DeleteIcon, GripIcon } from "lucide-react";
 import { FormItem } from "../ui/form";
 import { AccordionItem, AccordionTrigger } from "../ui/accordion";
+import { UseFieldArrayRemove } from "react-hook-form";
+import { Button } from "../ui/button";
 type Props = {
   id: string;
   index: number;
   children?: React.ReactNode;
   name: string;
+  removeQuestion: UseFieldArrayRemove;
 };
-export default function SortableItem({ id, index, children, name }: Props) {
+export default function SortableItem({
+  id,
+  index,
+  children,
+  name,
+  removeQuestion,
+}: Props) {
   const {
     attributes,
     listeners,
@@ -41,16 +50,25 @@ export default function SortableItem({ id, index, children, name }: Props) {
     >
       <div className="">
         <div>
-          <AccordionTrigger className="no-underline hover:no-underline flex  justify-between border-1 border-solid border-gray-700">
+          <AccordionTrigger className="no-underline hover:no-underline flex  justify-evenly items-start border-1 border-solid border-gray-700">
             <div className="flex gap-2 ">
               <GripIcon
                 className="cursor-grab"
                 {...attributes}
                 {...listeners}
               />
-              <p className=" font-normal text-gray-600 capitalize font-semibold">
+              <p className=" font-normal text-gray-600 capitalize text-left">
                 {name}
               </p>
+            </div>
+            <div className="w-full">
+              <Button
+                type="button"
+                className="my-2  bg-red-400 h-6"
+                onClick={() => removeQuestion(index)}
+              >
+                <DeleteIcon size={12} />
+              </Button>
             </div>
           </AccordionTrigger>
         </div>

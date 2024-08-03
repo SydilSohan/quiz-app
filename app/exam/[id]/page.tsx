@@ -20,7 +20,7 @@ type Props = {
 
 const ExamPage = async ({ params }: Props) => {
   if (!params.id) return <div>ExamPage</div>;
-
+  console.log(params.id);
   const supabase = createClient();
   const { data: quiz, error: dataError } = await supabase
     .from("exam")
@@ -37,15 +37,15 @@ const ExamPage = async ({ params }: Props) => {
     .select("id, created_at, ended_at")
     .eq("quiz_id", parseInt(params.id))
     .single();
-  // if (submissionError) throw new Error(submissionError.message);
+
   if (submissions) isTaken = true;
-  if (isTaken && !submissions.ended_at) {
+  if (isTaken && !submissions?.ended_at) {
     const date =
-      new Date(submissions.created_at).getTime() + 2 * 60 * 60 * 1000;
+      new Date(submissions?.created_at!).getTime() + 2 * 60 * 60 * 1000;
     return (
       <main className="max-w-screen-md mx-auto border-1 border-gray-400 rounded-md p-4 border-solid">
         <div className="p-4 border-solid border-1 border-black">
-          <CountdownTimer date={date} purchasedRoute_id={submissions.id} />
+          <CountdownTimer date={date} purchasedRoute_id={submissions?.id!} />
           <SingleQuiz
             questions={quiz?.questions as QuestionColumnType[]}
             proceed
@@ -79,14 +79,7 @@ const ExamPage = async ({ params }: Props) => {
                   You've already taken this quiz.
                 </p>
                 <Button className="w-fit">
-                  <Link
-                    href={
-                      "/account/taken/?" +
-                      new URLSearchParams({
-                        id: submissions.id.toString() ?? "",
-                      })
-                    }
-                  >
+                  <Link href={"/account/taken/" + submissions?.id}>
                     View your submission
                   </Link>
                 </Button>

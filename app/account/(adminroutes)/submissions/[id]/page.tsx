@@ -1,26 +1,28 @@
 import ResultsCard from "@/components/global/ResultsCard";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Results } from "@/types/types";
 import { createClient } from "@/utils/supabase/server";
 import { TrophyIcon } from "lucide-react";
 
-type Props = {};
+type Props = {
+  params: {
+    id: string;
+  };
+  searchParams: {
+    id: string;
+  };
+};
 
-const page = async ({
-  searchParams: { id },
-}: {
-  searchParams: { id: string };
-}) => {
-  if (!id) return <div> no id</div>;
+const TakenIdPage = async ({ params }: Props) => {
   const sup = createClient();
   const { data, error } = await sup
     .from("submissions")
-    .select("* , quizzes (*), profiles (*)")
-    .eq("id", id)
+    .select("* , quizzes (*, profiles(*)), profiles (*)")
+    .eq("id", params.id)
     .single();
-  if (error) throw new Error("An error occured fetching submission");
+  if (error) return <div>An error occured fetching submission</div>;
   return (
-    <main className=" grid col-span-2">
+    <>
       <Card className="w-full ">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <div className="space-y-1">
@@ -29,8 +31,12 @@ const page = async ({
             </h2>
             <p className="text-sm text-muted-foreground">
               Examinee:{" "}
-              {data.profiles.first_name + " " + data.profiles.last_name}
+              {data?.profiles?.first_name + " " + data.profiles?.last_name}
             </p>
+            Examiner:{" "}
+            {data?.quizzes?.profiles?.first_name +
+              " " +
+              data.quizzes?.profiles?.last_name}
           </div>
           <TrophyIcon className="h-8 w-8 text-primary" />
         </CardHeader>
@@ -43,7 +49,9 @@ const page = async ({
           </div>
           <div className="flex flex-col items-center">
             <div className="text-4xl font-bold text-red-600">
-              {data?.quizzes?.questions?.length - data?.score!}
+              {Array.isArray(data?.quizzes?.questions)
+                ? data?.quizzes?.questions.length - data?.score!
+                : 0}
             </div>
             <p className="text-sm text-muted-foreground">Wrong Answers</p>
           </div>
@@ -60,8 +68,8 @@ const page = async ({
         score={data.score ?? 0}
         key={data.id}
       />
-    </main>
+    </>
   );
 };
 
-export default page;
+export default TakenIdPage;
