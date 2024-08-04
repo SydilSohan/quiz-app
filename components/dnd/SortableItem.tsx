@@ -37,7 +37,6 @@ export default function SortableItem({
   return (
     <AccordionItem
       value={id}
-      // style={{ }}
       className=" px-4 shadow-lg bg-gray-100"
       key={id}
       ref={setNodeRef}

@@ -1,11 +1,9 @@
-import Modal from "@/components/global/Modal";
-import { DotIcon, Loader } from "lucide-react";
-import React from "react";
+import Spinner from "@/components/global/GlobalSpinner";
 
 type Props = {};
 
 const loading = (props: Props) => {
-  return <Loader className="size-8 animate-spin" />;
+  return <Spinner />;
 };
 
 export default loading;

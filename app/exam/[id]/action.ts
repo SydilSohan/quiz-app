@@ -10,7 +10,7 @@ export interface ActionResponse {
   message: string;
 }
 
-export async function getResults({answers, quizId, userId}: {answers: Answer, quizId: number, userId : string, subId? : number}) : Promise<ActionResponse>{
+export async function getResults({answers, quizId}: {answers: Answer, quizId: number,  subId? : number}) : Promise<ActionResponse>{
  const getExamScore = ({
   questions,
   answers,
@@ -77,17 +77,18 @@ export async function getResults({answers, quizId, userId}: {answers: Answer, qu
   try {
   const supabase = createClient()
   const {data, error} = await supabase.from("submissions").select("*, quizzes(*)").eq("quiz_id", quizId).single()
-    if (error) throw new Error(error.message)
+    if (error) throw new Error("error fetching internel data")
     
 
   const {score, results, grade, passed} = getExamScore({questions: data.quizzes?.questions as QuestionType[], answers})
   console.log(score, results, grade, passed, "results")
   const {data : upDate, error : submissionErr} = await supabase.from("submissions").update({ score, results, answers, grade, ended_at: new Date().toISOString()}).eq("quiz_id", quizId).select('*')
-  if (submissionErr) throw new Error(submissionErr.message)
+  if (submissionErr) throw new Error("Error updating results")
     console.log(upDate, "update")
   revalidatePath(`/exams/${quizId}`)
   return {status: 'success', message: 'Submission successful'}
   } catch (error) {
+    console.log(error)
     return {status: 'error', message:   JSON.stringify(error)}
   }
   

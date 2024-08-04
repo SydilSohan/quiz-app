@@ -1,6 +1,7 @@
 "use client";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -21,8 +22,14 @@ const Modal = ({ children }: Props) => {
     router.back();
   }
   return (
-    <Dialog defaultOpen open onOpenChange={handleOpenChange}>
-      <DialogContent>{children}</DialogContent>
+    <Dialog modal defaultOpen open onOpenChange={handleOpenChange}>
+      <DialogContent className="w-[95%]">
+        {children}
+
+        <DialogFooter>
+          <DialogClose>Close</DialogClose>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 };

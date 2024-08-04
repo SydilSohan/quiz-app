@@ -183,10 +183,13 @@ export default function QuizForm({ quiz, user }: Props) {
     const { error, data: updatedData } = await supabase
       .from("quizzes")
       .upsert({
-        ...data,
+        name: data.name,
+        instructions: data.instructions,
+        image: data.image,
+        inst: data.inst,
 
         questions: dataWithImagePath,
-        user_id: user?.id,
+        user_id: user?.id!,
         id: quiz?.id ?? undefined,
       })
       .select("*");
@@ -221,8 +224,6 @@ export default function QuizForm({ quiz, user }: Props) {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
       modifiers={[restrictToVerticalAxis]}
-      // onDragCancel={handleDragCancel}
-      // onDragStart={handleDragStart}
     >
       <SortableContext items={questionFields}>
         <Form {...form}>

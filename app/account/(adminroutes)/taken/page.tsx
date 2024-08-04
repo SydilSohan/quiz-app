@@ -21,8 +21,8 @@ async function SubmissionsDashboard() {
     .select("*, profiles (first_name)")
     .eq("submitter", user?.id!);
   return (
-    <div className="border-solid border-2 border-gray-400  rounded-sm p-4 w-full grid col-span-2">
-      <Table>
+    <main className="border-solid border-2 border-gray-400  rounded-sm p-4  w-full min-w-fit">
+      <Table className="w-full">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">ID</TableHead>
@@ -48,7 +48,7 @@ async function SubmissionsDashboard() {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </main>
   );
 }
 export default SubmissionsDashboard;

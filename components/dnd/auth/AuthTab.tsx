@@ -1,12 +1,12 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ClientLoginForm from './SignIn';
-import SignUpForm from './Signup';
-import ResetPass from './ResetPass';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ClientLoginForm from "./SignIn";
+import SignUpForm from "./Signup";
+import ResetPass from "./ResetPass";
 export default function AuthTabs() {
   return (
     <Tabs
       defaultValue="signin"
-      className="w-full sm:w-[400px] mx-auto my-4 min-h-screen"
+      className="w-full sm:w-[400px] mx-auto my-4 min-h-screen p-4"
     >
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="signin">Sign in</TabsTrigger>

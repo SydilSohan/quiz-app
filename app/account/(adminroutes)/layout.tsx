@@ -89,6 +89,7 @@ async function DashboardLayout({ children }: { children: React.ReactNode }) {
                 {userNavigation.map((nav, i) => (
                   <SingleNav key={i} item={nav} />
                 ))}
+                <Signout />
               </nav>
             </SheetContent>
           </Sheet>

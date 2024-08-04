@@ -1,10 +1,9 @@
-import Loader from "@/components/global/Loader";
-import React from "react";
+import Spinner from "@/components/global/GlobalSpinner";
 
 type Props = {};
 
 const loading = (props: Props) => {
-  return <Loader />;
+  return <Spinner />;
 };
 
 export default loading;

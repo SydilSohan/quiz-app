@@ -2,11 +2,12 @@
 
 import useGetUser from "@/hooks/useGetUser";
 import AuthTabs from "./AuthTab";
-import Loader from "../../global/Loader";
+import Loader from "../../global/GlobalSpinner";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Link } from "next-view-transitions";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import Signout from "@/app/account/(adminroutes)/Signout";
 
 const ClientLogin = () => {
   const { user, loading } = useGetUser();
@@ -31,16 +32,7 @@ const ClientLogin = () => {
           <p className="underline">
             <Link href={"/account"}>Go to dashboard</Link>
           </p>
-          <p
-            className="cursor-pointer underline"
-            onClick={async () => {
-              const supabase = createClient();
-              await supabase.auth.signOut();
-              router.refresh();
-            }}
-          >
-            Logout{" "}
-          </p>
+          <Signout />
         </CardContent>
       </Card>
     );

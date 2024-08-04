@@ -2,7 +2,7 @@ import Modal from "@/components/global/Modal";
 import React from "react";
 
 type Props = {
-  children: React.ReactNode;
+  children: React.ReactNode | null;
 };
 
 const layout = ({ children }: Props) => {

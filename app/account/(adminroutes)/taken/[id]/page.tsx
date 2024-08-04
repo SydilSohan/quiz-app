@@ -23,7 +23,7 @@ const TakenIdPage = async ({ params }: Props) => {
   if (error) return <div>An error occured fetching submission</div>;
   return (
     <>
-      <Card className="w-full ">
+      <Card className="w-full border-none shadow-none">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <div className="space-y-1">
             <h2 className="text-left   font-bold capitalize text-3xl">
@@ -45,7 +45,9 @@ const TakenIdPage = async ({ params }: Props) => {
             <div className="text-4xl font-bold text-green-600">
               {data.score}
             </div>
-            <p className="text-sm text-muted-foreground">Right Answers</p>
+            <p className="text-sm text-muted-foreground text-center">
+              Right Answers
+            </p>
           </div>
           <div className="flex flex-col items-center">
             <div className="text-4xl font-bold text-red-600">
@@ -53,9 +55,11 @@ const TakenIdPage = async ({ params }: Props) => {
                 ? data?.quizzes?.questions.length - data?.score!
                 : 0}
             </div>
-            <p className="text-sm text-muted-foreground">Wrong Answers</p>
+            <p className="text-sm text-muted-foreground text-center">
+              Wrong Answers
+            </p>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center text-center">
             <div className="text-4xl font-bold text-success">A-</div>
             <p className="text-sm text-muted-foreground">Grade</p>
           </div>

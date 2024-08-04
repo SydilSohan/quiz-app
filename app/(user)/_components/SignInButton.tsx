@@ -1,5 +1,5 @@
 "use client";
-import Loader from "@/components/global/Loader";
+import Loader from "@/components/global/GlobalSpinner";
 import { Button } from "@/components/ui/button";
 import useGetUser from "@/hooks/useGetUser";
 import { Link } from "next-view-transitions";

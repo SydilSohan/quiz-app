@@ -3,8 +3,6 @@ import Link from "next/link";
 import ExamForm from "./QuizForm";
 
 import { createClient } from "@/utils/supabase/server";
-import SingleQuiz from "../../../../exam/[id]/SingleQuiz";
-import { QuestionColumnType, QuestionType } from "@/types/schemas";
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
@@ -16,7 +14,6 @@ async function Page({
   };
 }) {
   const supabase = createClient();
-  const possibleParams = ["compose", "preview", "add", "edit"];
   const id = params.type[1] ? parseInt(params.type[1]) : null;
   const {
     data: { user },
@@ -46,22 +43,24 @@ async function Page({
         <ExamForm quiz={data} user={user} />
       </main>
     );
-  if (type === "preview") {
-    return (
-      <main className="p-4">
-        <Button asChild className="my-2">
-          <Link href={"/account/quizzes/compose/" + params.type[1]}>Edit</Link>
-        </Button>
-        <SingleQuiz
-          questions={data?.questions as QuestionColumnType[]}
-          instructions={data?.instructions!}
-          proceed
-          name={data?.name!}
-          quizId={data?.id!}
-          userId={user?.id!}
-        />
-      </main>
-    );
-  }
+  // if (type === "preview") {
+  //   return (
+  //     <main className="p-4">
+  //       <Button asChild className="my-2">
+  //         <Link href={"/account/quizzes/compose/" + params.type[1]}>Edit</Link>
+  //       </Button>
+  //       <SingleQuiz
+  //         questions={data?.questions as QuestionColumnType[]}
+  //         instructions={data?.instructions!}
+  //         proceed
+  //         name={data?.name!}
+  //         quizId={data?.id!}
+  //         userId={user?.id!}
+  //         date={new Date().getTime() + 2 * 60 * 60 * 1000}
+
+  //       />
+  //     </main>
+  //   );
+  // }
 }
 export default Page;

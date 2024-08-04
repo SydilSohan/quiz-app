@@ -4,25 +4,37 @@ import Countdown from "react-countdown";
 // import { handleExpire } from './actions';
 import { toast } from "sonner";
 import DrawerCount from "./DrawerCount";
+import { getResults } from "./action";
+import { z } from "zod";
+import { formSchema } from "./SingleQuiz";
+import Spinner from "@/components/global/GlobalSpinner";
 
 const CountdownTimer = ({
   date,
-  purchasedRoute_id,
+  quizId,
+  answers,
 }: {
   date: number;
-  purchasedRoute_id: number;
+  quizId: number;
+  answers: z.infer<typeof formSchema>;
 }) => {
   const [isPending, startTransition] = React.useTransition();
-  return (
+  function handleComplete() {
+    toast.info("Countdown Expired, submitting answers...");
+    startTransition(async () => {
+      const { status, message } = await getResults({
+        answers: Object.values(answers),
+        quizId,
+      });
+      toast[status](message);
+    });
+  }
+  return isPending ? (
+    <Spinner />
+  ) : (
     <Countdown
       date={date}
-      onComplete={
-        () => {}
-        // startTransition(async () => {
-        //   const { status, message } = await handleExpire(purchasedRoute_id);
-        //   toast[status](message);
-        // })
-      }
+      onComplete={handleComplete}
       renderer={({ hours, minutes, seconds, completed }) => {
         if (completed) {
           return (

@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tables } from "@/types/supabase";
 
 async function QuizzesPage() {
   const supabase = createClient();
@@ -28,23 +39,8 @@ async function QuizzesPage() {
   );
 }
 export default QuizzesPage;
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tables } from "@/types/database";
 
-export function TableDemo({
-  quizzes,
-}: {
-  quizzes: Partial<Tables<"quizzes">>[];
-}) {
+function TableDemo({ quizzes }: { quizzes: Partial<Tables<"quizzes">>[] }) {
   return (
     <main>
       <Table>
