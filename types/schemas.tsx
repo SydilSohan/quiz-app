@@ -83,10 +83,11 @@ export const QuizValuesSchema = z.object({
     message: "Instructions are required.",
   }),
   privacy: z.enum(["private", "public"]).optional(),
-  time: z.number().optional(),
+  time: z.coerce.number().optional(),
   logo: z.any().optional(),
   image: z.any().optional(),
   inst: z.string().optional(),
+  retake: z.boolean().optional(),
 });
 export type QuestionType = z.infer<typeof Question>;
 export type AnswerType = z.infer<typeof answer>;

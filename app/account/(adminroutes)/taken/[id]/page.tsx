@@ -23,8 +23,8 @@ const TakenIdPage = async ({ params }: Props) => {
   if (error) return <div>An error occured fetching submission</div>;
   return (
     <>
-      <Card className="w-full border-none shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+      <Card className="w-full border-none shadow-none p-0">
+        <CardHeader className="flex flex-col-reverse items-start sm:flex-row  justify-between border-b p-0 pb-2">
           <div className="space-y-1">
             <h2 className="text-left   font-bold capitalize text-3xl">
               {data.quizzes?.name}
@@ -40,7 +40,7 @@ const TakenIdPage = async ({ params }: Props) => {
           </div>
           <TrophyIcon className="h-8 w-8 text-primary" />
         </CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4 py-6">
+        <CardContent className="grid grid-cols-2 gap-4 py-6">
           <div className="flex flex-col items-center">
             <div className="text-4xl font-bold text-green-600">
               {data.score}
@@ -59,10 +59,10 @@ const TakenIdPage = async ({ params }: Props) => {
               Wrong Answers
             </p>
           </div>
-          <div className="flex flex-col items-center text-center">
+          {/* <div className="flex flex-col items-center text-center">
             <div className="text-4xl font-bold text-success">A-</div>
             <p className="text-sm text-muted-foreground">Grade</p>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
       <ResultsCard

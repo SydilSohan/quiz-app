@@ -47,7 +47,7 @@ type Props = {
   failed?: boolean;
   exam?: Tables<"exam"> | null;
   userId?: string | null;
-  date: number;
+  date: number | null;
   submissionId: number;
 };
 const ansSchema = z.object({
@@ -88,27 +88,31 @@ const SingleQuiz = ({
     <div className="w-full sm:max-w-screen-sm">
       <>
         <>
-          <CountdownTimer
-            date={date}
-            answers={form.getValues()}
-            quizId={quizId!}
-          />
+          {date && (
+            <CountdownTimer
+              date={date}
+              answers={form.getValues()}
+              quizId={quizId!}
+            />
+          )}
 
           <div className="my-4">
-            <h1 className="text-lg font-normal leading-relaxed">{name}</h1>
+            <h1 className="text-lg font-semibold leading-relaxed capitalize">
+              {name}
+            </h1>
             <p>{instructions}</p>
           </div>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="w-full space-y-6"
+              className="w-full  space-y-2"
             >
               {questions &&
-                questions.map((question) => (
-                  <Card className="shadow-none rounded-sm" key={question.id}>
-                    <CardHeader>
-                      <CardTitle className="mb-4 capitalize text-2xl">
-                        {question.name}
+                questions.map((question, index) => (
+                  <Card className="w-full rounded-sm" key={question.id}>
+                    <CardHeader className="px-4 pt-2 pb-0">
+                      <CardTitle className="mb-4 capitalize text-lg font-normal text-gray-700">
+                        {index + 1}. {question.name}
                       </CardTitle>
                       {question?.image && (
                         <Image
@@ -262,7 +266,7 @@ const SingleQuiz = ({
                   <p className="text-red-500"> Please answer all questionss</p>
                 )}
               </div>
-              <div className="flex gap-1">
+              <div className="gap-1 grid col-span-2">
                 <SubmitButton isLoading={form.formState.isSubmitting}>
                   Submit Answers
                 </SubmitButton>

@@ -120,7 +120,16 @@ type Props = {
   quiz?: Tables<"quizzes"> | null;
   user: User | null;
 };
-
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 export default function QuizForm({ quiz, user }: Props) {
   // const [activeItem, setActiveItem] = useState<QuestionType>({});
   const router = useRouter();
@@ -131,6 +140,8 @@ export default function QuizForm({ quiz, user }: Props) {
           name: quiz?.name,
           instructions: quiz?.instructions,
           questions: quiz!.questions as QuestionType[],
+          time: quiz.time || 0,
+          retake: quiz.retake,
         }
       : undefined,
   });
@@ -154,12 +165,9 @@ export default function QuizForm({ quiz, user }: Props) {
     console.log(form.formState.errors, "errors");
   }, [form.formState.errors]);
   const onSubmit = async (data: QuizValues) => {
-    console.log(data, "data");
     const supabase = createClient();
-
     const uploadPromises = data.questions.map(async (question) => {
       if (question.image instanceof File === false) return question;
-
       const { data, error } = await supabase.storage
         .from("quizassets")
         .upload(`/${Math.random()}-${question.image.name}`, question.image);
@@ -175,11 +183,6 @@ export default function QuizForm({ quiz, user }: Props) {
     const dataWithImagePath = await dataWithImagePathPromise;
     console.log(dataWithImagePath);
 
-    // toast.promise(dataWithImagePathPromise, {
-    //   loading: "Uploading images...",
-    //   success: () => "Images uploaded successfully",
-    //   error: "Error while uploading images",
-    // });
     const { error, data: updatedData } = await supabase
       .from("quizzes")
       .upsert({
@@ -187,10 +190,11 @@ export default function QuizForm({ quiz, user }: Props) {
         instructions: data.instructions,
         image: data.image,
         inst: data.inst,
-
         questions: dataWithImagePath,
         user_id: user?.id!,
         id: quiz?.id ?? undefined,
+        time: data.time || null,
+        retake: data.retake,
       })
       .select("*");
 
@@ -231,10 +235,62 @@ export default function QuizForm({ quiz, user }: Props) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-wrap gap-4 "
           >
-            <div className=" w-full ">
+            <div className=" w-full flex gap-2">
+              {" "}
               <SubmitButton isLoading={form.formState.isSubmitting}>
-                Submit
+                Save
               </SubmitButton>
+              <Dialog>
+                <DialogTrigger suppressHydrationWarning type="button">
+                  <Button variant={"secondary"} type="button">
+                    Settings
+                  </Button>
+                </DialogTrigger>
+                <DialogContent suppressHydrationWarning>
+                  <FormField
+                    control={form.control}
+                    name={`time` as const}
+                    render={({ field }) => (
+                      <FormItem suppressHydrationWarning className="">
+                        <FormLabel> Time Limit</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Enter Time limit in minutes. Leave empty or 0 for no
+                          limit.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`retake` as const}
+                    render={({ field }) => (
+                      <FormItem suppressHydrationWarning className="">
+                        <FormControl className="mt-4" suppressHydrationWarning>
+                          <Checkbox
+                            className="mt-2"
+                            suppressHydrationWarning
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              checked
+                                ? field.onChange(true)
+                                : field.onChange(false);
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel> Can Retake?</FormLabel>
+                        <FormDescription>
+                          Whether examinees can retake the quiz
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
             <FormField
               control={form.control}
@@ -441,10 +497,3 @@ export default function QuizForm({ quiz, user }: Props) {
     </DndContext>
   );
 }
-
-// function handleDragStart(event: DragStartEvent) {
-//   setActiveItem(event.active.id);
-// }
-// function handleDragCancel(event: DragCancelEvent) {
-//   setActiveItem(null);
-// }

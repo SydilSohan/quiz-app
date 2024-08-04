@@ -34,49 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      answers: {
-        Row: {
-          answer: Json
-          created_at: string
-          id: number
-          quiz: number
-        }
-        Insert: {
-          answer: Json
-          created_at?: string
-          id?: number
-          quiz: number
-        }
-        Update: {
-          answer?: Json
-          created_at?: string
-          id?: number
-          quiz?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "public_answers_quiz_fkey"
-            columns: ["quiz"]
-            isOneToOne: false
-            referencedRelation: "exam"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "public_answers_quiz_fkey"
-            columns: ["quiz"]
-            isOneToOne: false
-            referencedRelation: "quizzes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "public_answers_quiz_fkey"
-            columns: ["quiz"]
-            isOneToOne: false
-            referencedRelation: "userquiz"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           created_at: string
@@ -114,8 +71,8 @@ export type Database = {
           instructions: string
           logo: string | null
           name: string
-          privacy: Database["public"]["Enums"]["privacy"]
           questions: Json
+          retake: boolean
           time: number | null
           user_id: string
         }
@@ -128,8 +85,8 @@ export type Database = {
           instructions?: string
           logo?: string | null
           name?: string
-          privacy?: Database["public"]["Enums"]["privacy"]        
           questions: Json
+          retake?: boolean
           time?: number | null
           user_id: string
         }
@@ -142,8 +99,8 @@ export type Database = {
           instructions?: string
           logo?: string | null
           name?: string
-          privacy?: Database["public"]["Enums"]["privacy"]        
           questions?: Json
+          retake?: boolean
           time?: number | null
           user_id?: string
         }
@@ -193,28 +150,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "public_submissions_quiz_id_fkey"     
+            foreignKeyName: "public_submissions_quiz_id_fkey"
             columns: ["quiz_id"]
             isOneToOne: false
             referencedRelation: "exam"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "public_submissions_quiz_id_fkey"     
+            foreignKeyName: "public_submissions_quiz_id_fkey"
             columns: ["quiz_id"]
             isOneToOne: false
             referencedRelation: "quizzes"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "public_submissions_quiz_id_fkey"     
+            foreignKeyName: "public_submissions_quiz_id_fkey"
             columns: ["quiz_id"]
             isOneToOne: false
             referencedRelation: "userquiz"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "public_submissions_submitter_fkey"   
+            foreignKeyName: "public_submissions_submitter_fkey"
             columns: ["submitter"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -474,7 +431,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey" 
+            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey"
             columns: ["bucket_id"]
             isOneToOne: false
             referencedRelation: "buckets"
@@ -606,6 +563,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       search: {
         Args: {
           prefix: string
@@ -636,18 +597,18 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]   
+type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])      
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])    
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }   
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &     
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
@@ -670,14 +631,14 @@ export type TablesInsert<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }   
+> = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"] 
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {  
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -691,14 +652,14 @@ export type TablesUpdate<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }   
+> = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"] 
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {  
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -710,10 +671,10 @@ export type Enums<
     | keyof PublicSchema["Enums"]
     | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]  
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }    
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]   
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
     : never

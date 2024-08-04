@@ -7,19 +7,24 @@ import { toast } from "sonner";
 
 type Props = {
   quiz_id: number;
-  userId: string;
+  userId?: string;
+  retake?: boolean;
+  subId?: number;
+  isTaken: boolean;
 };
 
-const StartQuiz = ({ quiz_id, userId }: Props) => {
+const StartQuiz = ({ quiz_id, userId, subId, isTaken }: Props) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const supabase = createClient();
   function handleQuizStart() {
     startTransition(async () => {
-      const { error } = await supabase.from("submissions").insert({
+      const { error } = await supabase.from("submissions").upsert({
         quiz_id: quiz_id,
         submitter: userId,
         created_at: new Date().toISOString(),
+        ended_at: null,
+        id: subId || undefined,
       });
       if (error) {
         toast.error(error.message);
@@ -36,7 +41,7 @@ const StartQuiz = ({ quiz_id, userId }: Props) => {
       onClick={handleQuizStart}
       className="w-fit"
     >
-      Start Quiz
+      {isTaken ? "Retake Quiz" : "Start Quiz"}
     </SubmitButton>
   );
 };
