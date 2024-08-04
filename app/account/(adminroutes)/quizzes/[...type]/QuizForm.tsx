@@ -1,4 +1,6 @@
 "use client";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -132,6 +134,7 @@ import {
 } from "@/components/ui/dialog";
 export default function QuizForm({ quiz, user }: Props) {
   // const [activeItem, setActiveItem] = useState<QuestionType>({});
+  const privacy = ["public", "private"];
   const router = useRouter();
   const form = useForm<QuizValues>({
     resolver: zodResolver(QuizValuesSchema),
@@ -142,6 +145,7 @@ export default function QuizForm({ quiz, user }: Props) {
           questions: quiz!.questions as QuestionType[],
           time: quiz.time || 0,
           retake: quiz.retake,
+          privacy: quiz.privacy,
         }
       : undefined,
   });
@@ -195,6 +199,7 @@ export default function QuizForm({ quiz, user }: Props) {
         id: quiz?.id ?? undefined,
         time: data.time || null,
         retake: data.retake,
+        privacy: data.privacy,
       })
       .select("*");
 
@@ -285,6 +290,40 @@ export default function QuizForm({ quiz, user }: Props) {
                         <FormDescription>
                           Whether examinees can retake the quiz
                         </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="privacy"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Choose your quiz privacy...</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-1"
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="public" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Public
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="private" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Private
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

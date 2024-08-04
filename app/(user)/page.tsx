@@ -1,12 +1,16 @@
 import { Metadata } from "next";
 import config from "@/app.config.json";
-import {
-  CardBody,
-  CardContainer,
-  CardItem,
-} from "@/components/aceternity/3d-card";
 import { HeroHighlight } from "@/components/aceternity/hero-highlight";
-import Image from "next/image";
+import { createClient } from "@/utils/supabase/server";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: config.appName,
   description: config.metaDescription,
@@ -46,11 +50,38 @@ export const metadata: Metadata = {
 };
 
 export default async function Index() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("quizzes")
+    .select("name, id, profiles(first_name, last_name)")
+    .eq("privacy", "public")
+    .limit(10);
   return (
     <main className="max-w-screen-xl mx-auto  py-12">
       <HeroHighlight>
         <h1 className="font-black text-5xl">{config.content.tagline}</h1>
       </HeroHighlight>
+      <section className="grid grid-cols-3 gap-4 place-items-start py-8 ">
+        {data?.map((item) => (
+          <Card className="w-full rounded-sm">
+            <CardHeader>
+              <CardTitle>
+                <h2 className="capitalize text-xl">{item.name}</h2>
+              </CardTitle>
+              <CardDescription>
+                by{" "}
+                {`${item.profiles?.first_name} ${item.profiles?.last_name}` ||
+                  "unknown"}
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button>
+                <Link href={"/exam/" + item.id}>View</Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </section>
     </main>
   );
 }

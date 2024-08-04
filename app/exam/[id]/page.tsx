@@ -93,35 +93,36 @@ const ExamPage = async ({ params }: Props) => {
               ? `You've taken this quiz.`
               : "You haven't taken this quiz"}
           </p>
-          {isTaken ? (
-            <div className="space-x-2">
-              <Button className="w-fit " variant={"secondary"}>
-                <Link href={"/account/taken/" + submissions?.id}>
-                  View your submission
-                </Link>
-              </Button>
-              {quiz?.retake && (
-                <StartQuiz
-                  isTaken={isTaken}
-                  subId={submissions?.id}
-                  retake={quiz?.retake}
-                  quiz_id={quiz?.id!}
-                  userId={user?.id}
-                />
-              )}
-            </div>
-          ) : (
-            <StartQuiz
-              isTaken={isTaken}
-              subId={submissions?.id}
-              retake={quiz?.retake}
-              quiz_id={quiz?.id!}
-              userId={user?.id}
-            />
-          )}
+          {user &&
+            (isTaken ? (
+              <div className="space-x-2">
+                <Button className="w-fit " variant={"secondary"}>
+                  <Link href={"/account/taken/" + submissions?.id}>
+                    View your submission
+                  </Link>
+                </Button>
+                {quiz?.retake && (
+                  <StartQuiz
+                    isTaken={isTaken}
+                    subId={submissions?.id}
+                    retake={quiz?.retake}
+                    quiz_id={quiz?.id!}
+                    userId={user?.id}
+                  />
+                )}
+              </div>
+            ) : (
+              <StartQuiz
+                isTaken={isTaken}
+                subId={submissions?.id}
+                retake={quiz?.retake}
+                quiz_id={quiz?.id!}
+                userId={user?.id}
+              />
+            ))}
 
           {!user && (
-            <Button className="w-full">
+            <Button className="w-fit">
               <Link href={"/auth/login"}>Login to start</Link>
             </Button>
           )}

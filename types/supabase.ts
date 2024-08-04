@@ -71,6 +71,7 @@ export type Database = {
           instructions: string
           logo: string | null
           name: string
+          privacy: Database["public"]["Enums"]["privacy"]
           questions: Json
           retake: boolean
           time: number | null
@@ -85,6 +86,7 @@ export type Database = {
           instructions?: string
           logo?: string | null
           name?: string
+          privacy?: Database["public"]["Enums"]["privacy"]
           questions: Json
           retake?: boolean
           time?: number | null
@@ -99,6 +101,7 @@ export type Database = {
           instructions?: string
           logo?: string | null
           name?: string
+          privacy?: Database["public"]["Enums"]["privacy"]
           questions?: Json
           retake?: boolean
           time?: number | null
