@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import DrawerCount from "./DrawerCount";
 import { getResults } from "./action";
 import { z } from "zod";
-import { formSchema } from "./SingleQuiz";
 import Spinner from "@/components/global/GlobalSpinner";
+import { ExamPageFormSchemaType } from "@/types/schemas";
 
 const CountdownTimer = ({
   date,
@@ -16,14 +16,14 @@ const CountdownTimer = ({
 }: {
   date: number;
   quizId: number;
-  answers: z.infer<typeof formSchema>;
+  answers: ExamPageFormSchemaType;
 }) => {
   const [isPending, startTransition] = React.useTransition();
   function handleComplete() {
     toast.info("Countdown Expired, submitting answers...");
     startTransition(async () => {
       const { status, message } = await getResults({
-        answers: Object.values(answers),
+        answers: answers,
         quizId,
       });
       toast[status](message);

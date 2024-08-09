@@ -37,7 +37,7 @@ export default function SortableItem({
   return (
     <AccordionItem
       value={id}
-      className=" px-4 shadow-lg bg-gray-100"
+      className=" px-4 shadow-lg "
       key={id}
       ref={setNodeRef}
       style={{
@@ -49,7 +49,7 @@ export default function SortableItem({
     >
       <div className="">
         <div>
-          <AccordionTrigger className="no-underline hover:no-underline flex  justify-evenly items-start border-1 border-solid border-gray-700">
+          <AccordionTrigger className="no-underline hover:no-underline flex  justify-between items-start border-1 border-solid border-gray-700">
             <div className="flex gap-2 ">
               <GripIcon
                 className="cursor-grab"
@@ -60,15 +60,14 @@ export default function SortableItem({
                 {name}
               </p>
             </div>
-            <div className="w-full">
-              <Button
-                type="button"
-                className="my-2  bg-red-400 h-6"
+            {/* <div className="w-full">
+              <div
+                className="flex justify-center items-center bg-red-400 size-8"
                 onClick={() => removeQuestion(index)}
               >
                 <DeleteIcon size={12} />
-              </Button>
-            </div>
+              </div>
+            </div> */}
           </AccordionTrigger>
         </div>
         <div>{children}</div>

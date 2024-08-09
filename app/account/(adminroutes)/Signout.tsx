@@ -16,7 +16,7 @@ const Signout = (props: Props) => {
     startTransition(async () => {
       await supabase.auth.signOut();
     });
-    router.push("/auth/login");
+    router.refresh();
   };
   return (
     <SubmitButton

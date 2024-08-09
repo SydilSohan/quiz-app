@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   BeerIcon,
+  FileIcon,
   FileQuestionIcon,
   GraduationCap,
   Home,
@@ -42,6 +43,11 @@ async function DashboardLayout({ children }: { children: React.ReactNode }) {
       label: "Exams Taken",
       href: "/account/taken",
       icon: <GraduationCap size={18} />,
+    },
+    {
+      label: "Media",
+      href: "/account/media",
+      icon: <FileIcon size={18} />,
     },
   ];
   const supabase = createClient();

@@ -8,7 +8,7 @@ import React, { useEffect } from "react";
 type Props = {};
 
 const SignInButton = (props: Props) => {
-  const { loading, authEvent, user } = useGetUser();
+  const { loading, user } = useGetUser({ getProfile: false });
 
   return (
     <Button className="w-24">

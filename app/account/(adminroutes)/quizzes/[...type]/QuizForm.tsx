@@ -1,5 +1,4 @@
 "use client";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,7 +22,14 @@ import { QuestionType, QuizValues, QuizValuesSchema } from "@/types/schemas";
 import SubmitButton from "@/components/global/SubmitButton";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
-import { DeleteIcon, Trash2Icon } from "lucide-react";
+import {
+  DeleteIcon,
+  ImageOff,
+  ImagePlusIcon,
+  Images,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useEffect } from "react";
 import {
   DndContext,
@@ -43,6 +49,10 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { Accordion, AccordionContent } from "@/components/ui/accordion";
 import SortableItem from "@/components/dnd/SortableItem";
 import { User } from "@supabase/supabase-js";
+import QuizSettings from "./QuizSettings";
+import Link from "next/link";
+import MediaPicker from "./MediaPicker";
+import { createUrl } from "@/hooks/createUrl";
 const OptionFieldsNew = ({ form, questionIndex }: any) => {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -50,7 +60,7 @@ const OptionFieldsNew = ({ form, questionIndex }: any) => {
   });
 
   return (
-    <div className="w-2/5">
+    <div className="w-full sm:w-2/5">
       {fields.map((oField, index) => (
         <div
           key={oField.id}
@@ -122,16 +132,6 @@ type Props = {
   quiz?: Tables<"quizzes"> | null;
   user: User | null;
 };
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 export default function QuizForm({ quiz, user }: Props) {
   // const [activeItem, setActiveItem] = useState<QuestionType>({});
   const privacy = ["public", "private"];
@@ -146,6 +146,9 @@ export default function QuizForm({ quiz, user }: Props) {
           time: quiz.time || 0,
           retake: quiz.retake,
           privacy: quiz.privacy,
+          hidden_answers: quiz.hidden_answers,
+          neg_marking: quiz.neg_marking!,
+          pass_mark: quiz.pass_mark!,
         }
       : undefined,
   });
@@ -166,8 +169,8 @@ export default function QuizForm({ quiz, user }: Props) {
     })
   );
   useEffect(() => {
-    console.log(form.formState.errors, "errors");
-  }, [form.formState.errors]);
+    console.log(form.getValues("questions"));
+  }, [form.getValues()]);
   const onSubmit = async (data: QuizValues) => {
     const supabase = createClient();
     const uploadPromises = data.questions.map(async (question) => {
@@ -175,8 +178,6 @@ export default function QuizForm({ quiz, user }: Props) {
       const { data, error } = await supabase.storage
         .from("quizassets")
         .upload(`/${Math.random()}-${question.image.name}`, question.image);
-      console.log(error, "error on image");
-      console.log(data?.path);
       return {
         ...question,
         image: data?.path,
@@ -185,24 +186,15 @@ export default function QuizForm({ quiz, user }: Props) {
 
     const dataWithImagePathPromise = Promise.all(uploadPromises);
     const dataWithImagePath = await dataWithImagePathPromise;
-    console.log(dataWithImagePath);
-
     const { error, data: updatedData } = await supabase
       .from("quizzes")
       .upsert({
-        name: data.name,
-        instructions: data.instructions,
-        image: data.image,
-        inst: data.inst,
+        ...data,
         questions: dataWithImagePath,
         user_id: user?.id!,
         id: quiz?.id ?? undefined,
-        time: data.time || null,
-        retake: data.retake,
-        privacy: data.privacy,
       })
       .select("*");
-
     if (error)
       toast.error("Error", {
         description: error.message,
@@ -222,7 +214,11 @@ export default function QuizForm({ quiz, user }: Props) {
       const newIndex = questionFields.findIndex((item) => item.id === over?.id);
       console.log(newIndex);
 
-      const newItems = arrayMove(questionFields, oldIndex, newIndex);
+      const newItems = arrayMove(
+        form.getValues("questions"),
+        oldIndex,
+        newIndex
+      );
       replace(newItems);
     }
   }
@@ -240,97 +236,18 @@ export default function QuizForm({ quiz, user }: Props) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-wrap gap-4 "
           >
+            <MediaPicker userId={user?.id!} setValue={form.setValue} />
             <div className=" w-full flex gap-2">
               {" "}
               <SubmitButton isLoading={form.formState.isSubmitting}>
                 Save
               </SubmitButton>
-              <Dialog>
-                <DialogTrigger suppressHydrationWarning type="button">
-                  <Button variant={"secondary"} type="button">
-                    Settings
-                  </Button>
-                </DialogTrigger>
-                <DialogContent suppressHydrationWarning>
-                  <FormField
-                    control={form.control}
-                    name={`time` as const}
-                    render={({ field }) => (
-                      <FormItem suppressHydrationWarning className="">
-                        <FormLabel> Time Limit</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Enter Time limit in minutes. Leave empty or 0 for no
-                          limit.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`retake` as const}
-                    render={({ field }) => (
-                      <FormItem suppressHydrationWarning className="">
-                        <FormControl className="mt-4" suppressHydrationWarning>
-                          <Checkbox
-                            className="mt-2"
-                            suppressHydrationWarning
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              checked
-                                ? field.onChange(true)
-                                : field.onChange(false);
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel> Can Retake?</FormLabel>
-                        <FormDescription>
-                          Whether examinees can retake the quiz
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="privacy"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Choose your quiz privacy...</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-1"
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="public" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Public
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="private" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Private
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </DialogContent>
-              </Dialog>
+              <QuizSettings form={form} />
+              <Button type="button" className="">
+                <Link href={"/account/quizzes"}>Go Back</Link>
+              </Button>
             </div>
+
             <FormField
               control={form.control}
               name={`name` as const}
@@ -338,7 +255,7 @@ export default function QuizForm({ quiz, user }: Props) {
                 <FormItem className=" w-full lg:w-[45%]">
                   <FormLabel> Quiz Title</FormLabel>
                   <FormControl>
-                    <Textarea {...field} />
+                    <Input type="text" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -370,7 +287,7 @@ export default function QuizForm({ quiz, user }: Props) {
                   removeQuestion={removeQuestion}
                   // className="space-y-4 w-full py-2 px-6 shadow-lg rounded-md"
                 >
-                  <AccordionContent className="gap-4 space-y-4 flex-row flex-wrap flex">
+                  <AccordionContent className="flex flex-row gap-4 flex-wrap">
                     <input
                       {...form.register(`questions.${index}.id` as const)}
                       type="number"
@@ -382,13 +299,14 @@ export default function QuizForm({ quiz, user }: Props) {
                       control={form.control}
                       name={`questions.${index}.name` as const}
                       render={({ field }) => (
-                        <FormItem className="  w-full ">
-                          <FormLabel>
-                            {" "}
-                            Question {index + 1} description
-                          </FormLabel>
+                        <FormItem className="  w-full grid col-span-1 ">
+                          {/* <FormLabel> Name</FormLabel> */}
                           <FormControl>
-                            <Textarea {...field} />
+                            <Input
+                              placeholder="Enter question name"
+                              type="text"
+                              {...field}
+                            />
                           </FormControl>
 
                           <FormMessage />
@@ -400,44 +318,65 @@ export default function QuizForm({ quiz, user }: Props) {
                       control={form.control}
                       name={`questions.${index}.image` as const}
                       render={({ field }) => (
-                        <FormItem className="w-2/5">
+                        <FormItem className="space-x-2 w-full sm:w-1/2">
                           {/* display the image here only if it exists */}
-
-                          <FormLabel className="capitalize">
+                          {/* <FormLabel className="capitalize w-full">
                             Quiz Image
-                          </FormLabel>
-                          <FormControl>
-                            <Input
+                          </FormLabel>{" "} */}
+
+                          {/* <FormControl> */}
+                          {/* <Input
                               type="file"
                               accept="image/png, image/gif, image/jpeg"
                               onChange={(e) => {
                                 const file = e.target.files![0];
                                 field.onChange(file);
                               }}
-                            />
-                          </FormControl>
+                            /> */}
+                          {/* </FormControl> */}
+                          <Link
+                            prefetch
+                            scroll={false}
+                            className="bg-gray-300 w-full aspect-video  flex items-center justify-center relative rounded-sm "
+                            href={
+                              "?" +
+                              new URLSearchParams({
+                                index: index.toString(),
+                              })
+                            }
+                          >
+                            {field.value ? (
+                              <>
+                                <Image
+                                  fill
+                                  src={
+                                    field.value instanceof File
+                                      ? URL.createObjectURL(field.value)
+                                      : createUrl(
+                                          process.env
+                                            .NEXT_PUBLIC_QUIZASSETS_URL!,
+                                          field.value
+                                        )
+                                  }
+                                  alt="quiz image"
+                                  className=" "
+                                />
+                              </>
+                            ) : (
+                              <ImagePlusIcon size={40} />
+                            )}
+                          </Link>
                           {field.value && (
-                            <div className="relative  aspect-video">
-                              <Image
-                                height={200}
-                                width={300}
-                                src={
-                                  field.value instanceof File
-                                    ? URL.createObjectURL(field.value)
-                                    : process.env.NEXT_PUBLIC_QUIZASSETS_URL! +
-                                      field.value
-                                }
-                                alt="quiz image"
-                                className=" aspect-auto object-cover rounded-md  drop-shadow-xl my-4"
-                              />
-                              <Button
-                                className="space-x-5"
-                                onClick={() => field.onChange("")}
-                              >
-                                Remove Image <Trash2Icon className="ml-3" />
-                              </Button>
-                            </div>
+                            <Button
+                              type="button"
+                              className="flex justify-self-start self-start z-20"
+                              variant={"destructive"}
+                              onClick={() => field.onChange("")}
+                            >
+                              <ImageOff className="" />
+                            </Button>
                           )}
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -477,7 +416,8 @@ export default function QuizForm({ quiz, user }: Props) {
               ))}
             </Accordion>
 
-            <div className="flex w-full flex-row flex-wrap gap-2">
+            <div className="flex w-full flex-row flex-wrap gap-2 items-center">
+              <PlusIcon strokeWidth={0.6} />
               <Button
                 variant={"outline"}
                 className="my-2"
@@ -493,7 +433,7 @@ export default function QuizForm({ quiz, user }: Props) {
                   })
                 }
               >
-                Add MCQ Question
+                MCQ
               </Button>
               <Button
                 variant={"outline"}
@@ -510,7 +450,7 @@ export default function QuizForm({ quiz, user }: Props) {
                   })
                 }
               >
-                Add True/False
+                True/False
               </Button>
               <Button
                 variant={"outline"}
@@ -527,7 +467,7 @@ export default function QuizForm({ quiz, user }: Props) {
                   })
                 }
               >
-                Add fill Question
+                Filler
               </Button>
             </div>
           </form>

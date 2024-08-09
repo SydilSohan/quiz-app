@@ -20,7 +20,18 @@ const TakenIdPage = async ({ params }: Props) => {
     .select("* , quizzes (*, profiles(*)), profiles (*)")
     .eq("id", params.id)
     .single();
-  if (error) return <div>An error occured fetching submission</div>;
+  if (error || !data) return <div>An error occured fetching submission</div>;
+  const verdict =
+    ((data.score || 0) /
+      (Array.isArray(data.answers?.length) ? data.answers?.length : 0)) *
+      100 >
+    (data.quizzes?.pass_mark || 33.33)
+      ? "Passed"
+      : "Failed";
+  const wrongAnswers = Array.isArray(data?.quizzes?.questions)
+    ? data?.quizzes?.questions.length - data?.score!
+    : -1;
+  const penalty = wrongAnswers * data?.quizzes?.neg_marking! || 0;
   return (
     <>
       <Card className="w-full border-none shadow-none p-0">
@@ -45,24 +56,22 @@ const TakenIdPage = async ({ params }: Props) => {
             <div className="text-4xl font-bold text-green-600">
               {data.score}
             </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Right Answers
-            </p>
+            <p className="text-sm text-muted-foreground text-center">Score</p>
           </div>
           <div className="flex flex-col items-center">
             <div className="text-4xl font-bold text-red-600">
-              {Array.isArray(data?.quizzes?.questions)
-                ? data?.quizzes?.questions.length - data?.score!
-                : 0}
+              {wrongAnswers}
             </div>
             <p className="text-sm text-muted-foreground text-center">
-              Wrong Answers
+              Wrong Answers -{}
+              <br></br>
+              penalty - {penalty}
             </p>
           </div>
-          {/* <div className="flex flex-col items-center text-center">
-            <div className="text-4xl font-bold text-success">A-</div>
-            <p className="text-sm text-muted-foreground">Grade</p>
-          </div> */}
+          <div className="flex flex-col items-center text-center">
+            <div className="text-4xl font-bold text-success">{verdict}</div>
+            <p className="text-sm text-muted-foreground">Verdict</p>
+          </div>
         </CardContent>
       </Card>
       <ResultsCard

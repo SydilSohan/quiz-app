@@ -561,6 +561,16 @@ $_$;
 
 ALTER FUNCTION "storage"."list_objects_with_delimiter"("bucket_id" "text", "prefix_param" "text", "delimiter_param" "text", "max_keys" integer, "start_after" "text", "next_token" "text") OWNER TO "supabase_storage_admin";
 
+CREATE OR REPLACE FUNCTION "storage"."operation"() RETURNS "text"
+    LANGUAGE "plpgsql" STABLE
+    AS $$
+BEGIN
+    RETURN current_setting('storage.operation', true);
+END;
+$$;
+
+ALTER FUNCTION "storage"."operation"() OWNER TO "supabase_storage_admin";
+
 CREATE OR REPLACE FUNCTION "storage"."search"("prefix" "text", "bucketname" "text", "limits" integer DEFAULT 100, "levels" integer DEFAULT 1, "offsets" integer DEFAULT 0, "search" "text" DEFAULT ''::"text", "sortcolumn" "text" DEFAULT 'name'::"text", "sortorder" "text" DEFAULT 'asc'::"text") RETURNS TABLE("name" "text", "id" "uuid", "updated_at" timestamp with time zone, "created_at" timestamp with time zone, "last_accessed_at" timestamp with time zone, "metadata" "jsonb")
     LANGUAGE "plpgsql" STABLE
     AS $_$
@@ -927,9 +937,13 @@ CREATE TABLE IF NOT EXISTS "public"."quizzes" (
     "answers" "jsonb",
     "inst" "text" DEFAULT ''::"text",
     "logo" "text",
-    "time" numeric DEFAULT '20'::numeric,
+    "time" numeric,
     "user_id" "uuid" NOT NULL,
-    "privacy" "public"."privacy" DEFAULT 'public'::"public"."privacy" NOT NULL
+    "retake" boolean DEFAULT false NOT NULL,
+    "privacy" "public"."privacy" DEFAULT 'public'::"public"."privacy" NOT NULL,
+    "hidden_answers" boolean DEFAULT true NOT NULL,
+    "neg_marking" real DEFAULT '0'::real NOT NULL,
+    "pass_mark" real DEFAULT '33.33'::real NOT NULL
 );
 
 ALTER TABLE "public"."quizzes" OWNER TO "postgres";
@@ -954,7 +968,8 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "email" "text",
     "metadata" "jsonb",
     "first_name" "text",
-    "last_name" "text"
+    "last_name" "text",
+    "saved" bigint[] DEFAULT '{}'::bigint[] NOT NULL
 );
 
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
@@ -980,7 +995,7 @@ CREATE TABLE IF NOT EXISTS "public"."submissions" (
     "answers" "jsonb"[],
     "quiz_id" bigint NOT NULL,
     "grade" "text",
-    "score" smallint,
+    "score" real,
     "submitter" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "results" "jsonb"[],
     "ended_at" timestamp with time zone
@@ -1321,6 +1336,38 @@ ALTER TABLE ONLY "storage"."s3_multipart_uploads_parts"
 ALTER TABLE ONLY "storage"."s3_multipart_uploads_parts"
     ADD CONSTRAINT "s3_multipart_uploads_parts_upload_id_fkey" FOREIGN KEY ("upload_id") REFERENCES "storage"."s3_multipart_uploads"("id") ON DELETE CASCADE;
 
+ALTER TABLE "auth"."audit_log_entries" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."flow_state" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."identities" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."instances" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."mfa_amr_claims" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."mfa_challenges" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."mfa_factors" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."one_time_tokens" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."refresh_tokens" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."saml_providers" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."saml_relay_states" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."schema_migrations" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."sessions" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."sso_domains" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."sso_providers" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "auth"."users" ENABLE ROW LEVEL SECURITY;
+
 CREATE POLICY "Admin access" ON "public"."submissions" FOR SELECT USING ((EXISTS ( SELECT 1
    FROM "public"."quizzes"
   WHERE (("quizzes"."id" = "submissions"."quiz_id") AND ("quizzes"."user_id" = "auth"."uid"())))));
@@ -1335,33 +1382,35 @@ CREATE POLICY "Enable insert for users based on user_id" ON "public"."quizzes" F
 
 CREATE POLICY "Enable read access for all users" ON "public"."quizzes" FOR SELECT USING (true);
 
-CREATE POLICY "Id Access" ON "public"."profiles" FOR SELECT USING ((( SELECT "auth"."uid"() AS "uid") = "id"));
+CREATE POLICY "Enable select for users based on user_id" ON "public"."profiles" FOR SELECT USING ((( SELECT "auth"."uid"() AS "uid") = "id"));
 
 CREATE POLICY "logged in" ON "public"."submissions" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."quizzes" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."submissions" ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY "update based on userId" ON "public"."profiles" FOR UPDATE USING ((( SELECT "auth"."uid"() AS "uid") = "id"));
+
 CREATE POLICY "update based on user_id" ON "public"."submissions" FOR UPDATE USING ((( SELECT "auth"."uid"() AS "uid") = "submitter"));
 
-CREATE POLICY "Give anon users access to JPG images in folder 5s44yg_0" ON "storage"."objects" FOR SELECT USING (true);
+CREATE POLICY "Enable delete for users based on user_id" ON "storage"."buckets" FOR DELETE USING (true);
 
-CREATE POLICY "Give anon users access to JPG images in folder 5s44yg_1" ON "storage"."objects" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Give users access to own folder 5s44yg_0" ON "storage"."objects" FOR SELECT USING ((("bucket_id" = 'quizassets'::"text") AND (( SELECT ("auth"."uid"())::"text" AS "uid") = ("storage"."foldername"("name"))[1])));
 
-CREATE POLICY "Give anon users access to JPG images in folder 5s44yg_2" ON "storage"."objects" FOR DELETE USING (true);
+CREATE POLICY "Give users access to own folder 5s44yg_1" ON "storage"."objects" FOR INSERT WITH CHECK ((("bucket_id" = 'quizassets'::"text") AND (( SELECT ("auth"."uid"())::"text" AS "uid") = ("storage"."foldername"("name"))[1])));
 
-CREATE POLICY "Give anon users access to JPG images in folder 5s44yg_3" ON "storage"."objects" FOR UPDATE USING (true);
+CREATE POLICY "Give users access to own folder 5s44yg_2" ON "storage"."objects" FOR UPDATE USING ((("bucket_id" = 'quizassets'::"text") AND (( SELECT ("auth"."uid"())::"text" AS "uid") = ("storage"."foldername"("name"))[1])));
+
+CREATE POLICY "Give users access to own folder 5s44yg_3" ON "storage"."objects" FOR DELETE USING ((("bucket_id" = 'quizassets'::"text") AND (( SELECT ("auth"."uid"())::"text" AS "uid") = ("storage"."foldername"("name"))[1])));
 
 ALTER TABLE "storage"."buckets" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "dw 5s44yg_0" ON "storage"."objects" FOR UPDATE USING (true);
+CREATE POLICY "folder access 5s44yg_0" ON "storage"."objects" FOR DELETE USING (true);
 
-CREATE POLICY "dw 5s44yg_1" ON "storage"."objects" FOR DELETE USING (true);
-
-CREATE POLICY "dw 5s44yg_2" ON "storage"."objects" FOR SELECT USING (true);
-
-CREATE POLICY "dw 5s44yg_3" ON "storage"."objects" FOR INSERT WITH CHECK (true);
+CREATE POLICY "folder access 5s44yg_1" ON "storage"."objects" FOR SELECT USING (true);
 
 ALTER TABLE "storage"."migrations" ENABLE ROW LEVEL SECURITY;
 
@@ -1429,55 +1478,71 @@ GRANT ALL ON FUNCTION "public"."handle_user_update"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."handle_user_update"() TO "service_role";
 
 GRANT ALL ON TABLE "auth"."audit_log_entries" TO "dashboard_user";
-GRANT ALL ON TABLE "auth"."audit_log_entries" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."audit_log_entries" TO "postgres";
+GRANT SELECT ON TABLE "auth"."audit_log_entries" TO "postgres" WITH GRANT OPTION;
 
-GRANT ALL ON TABLE "auth"."flow_state" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."flow_state" TO "postgres";
+GRANT SELECT ON TABLE "auth"."flow_state" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."flow_state" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."identities" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."identities" TO "postgres";
+GRANT SELECT ON TABLE "auth"."identities" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."identities" TO "dashboard_user";
 
 GRANT ALL ON TABLE "auth"."instances" TO "dashboard_user";
-GRANT ALL ON TABLE "auth"."instances" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."instances" TO "postgres";
+GRANT SELECT ON TABLE "auth"."instances" TO "postgres" WITH GRANT OPTION;
 
-GRANT ALL ON TABLE "auth"."mfa_amr_claims" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."mfa_amr_claims" TO "postgres";
+GRANT SELECT ON TABLE "auth"."mfa_amr_claims" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."mfa_amr_claims" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."mfa_challenges" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."mfa_challenges" TO "postgres";
+GRANT SELECT ON TABLE "auth"."mfa_challenges" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."mfa_challenges" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."mfa_factors" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."mfa_factors" TO "postgres";
+GRANT SELECT ON TABLE "auth"."mfa_factors" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."mfa_factors" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."one_time_tokens" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."one_time_tokens" TO "postgres";
+GRANT SELECT ON TABLE "auth"."one_time_tokens" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."one_time_tokens" TO "dashboard_user";
 
 GRANT ALL ON TABLE "auth"."refresh_tokens" TO "dashboard_user";
-GRANT ALL ON TABLE "auth"."refresh_tokens" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."refresh_tokens" TO "postgres";
+GRANT SELECT ON TABLE "auth"."refresh_tokens" TO "postgres" WITH GRANT OPTION;
 
 GRANT ALL ON SEQUENCE "auth"."refresh_tokens_id_seq" TO "dashboard_user";
 GRANT ALL ON SEQUENCE "auth"."refresh_tokens_id_seq" TO "postgres";
 
-GRANT ALL ON TABLE "auth"."saml_providers" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."saml_providers" TO "postgres";
+GRANT SELECT ON TABLE "auth"."saml_providers" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."saml_providers" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."saml_relay_states" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."saml_relay_states" TO "postgres";
+GRANT SELECT ON TABLE "auth"."saml_relay_states" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."saml_relay_states" TO "dashboard_user";
 
 GRANT ALL ON TABLE "auth"."schema_migrations" TO "dashboard_user";
-GRANT ALL ON TABLE "auth"."schema_migrations" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."schema_migrations" TO "postgres";
+GRANT SELECT ON TABLE "auth"."schema_migrations" TO "postgres" WITH GRANT OPTION;
 
-GRANT ALL ON TABLE "auth"."sessions" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."sessions" TO "postgres";
+GRANT SELECT ON TABLE "auth"."sessions" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."sessions" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."sso_domains" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."sso_domains" TO "postgres";
+GRANT SELECT ON TABLE "auth"."sso_domains" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."sso_domains" TO "dashboard_user";
 
-GRANT ALL ON TABLE "auth"."sso_providers" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."sso_providers" TO "postgres";
+GRANT SELECT ON TABLE "auth"."sso_providers" TO "postgres" WITH GRANT OPTION;
 GRANT ALL ON TABLE "auth"."sso_providers" TO "dashboard_user";
 
 GRANT ALL ON TABLE "auth"."users" TO "dashboard_user";
-GRANT ALL ON TABLE "auth"."users" TO "postgres";
+GRANT INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "auth"."users" TO "postgres";
+GRANT SELECT ON TABLE "auth"."users" TO "postgres" WITH GRANT OPTION;
 
 GRANT ALL ON TABLE "public"."quizzes" TO "anon";
 GRANT ALL ON TABLE "public"."quizzes" TO "authenticated";

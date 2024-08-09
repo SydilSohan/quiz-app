@@ -47,6 +47,9 @@ export default function ResultsCard({
                   ) : (
                     <CircleX color="red" size={20} />
                   )}
+                  {result.correctAnswer && (
+                    <p>Correct Answer : {result.correctAnswer}</p>
+                  )}
                 </div>
                 <Separator />
               </>

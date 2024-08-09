@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import config from "@/app.config.json";
 import { HeroHighlight } from "@/components/aceternity/hero-highlight";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import {
   Card,
   CardDescription,
@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { HeartIcon } from "@radix-ui/react-icons";
+import QuizCard from "./QuizCard";
+import Image from "next/image";
 export const metadata: Metadata = {
   title: config.appName,
   description: config.metaDescription,
@@ -56,30 +59,20 @@ export default async function Index() {
     .select("name, id, profiles(first_name, last_name)")
     .eq("privacy", "public")
     .limit(10);
+  const { data: storage, error } = await supabase.storage
+    .from("quizassets")
+    .list("a05fa8dd-0abd-453d-8b8b-661f848e8a54");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return (
     <main className="max-w-screen-xl mx-auto  py-12">
       <HeroHighlight>
         <h1 className="font-black text-5xl">{config.content.tagline}</h1>
       </HeroHighlight>
-      <section className="grid grid-cols-3 gap-4 place-items-start py-8 ">
-        {data?.map((item) => (
-          <Card className="w-full rounded-sm">
-            <CardHeader>
-              <CardTitle>
-                <h2 className="capitalize text-xl">{item.name}</h2>
-              </CardTitle>
-              <CardDescription>
-                by{" "}
-                {`${item.profiles?.first_name} ${item.profiles?.last_name}` ||
-                  "unknown"}
-              </CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button>
-                <Link href={"/exam/" + item.id}>View</Link>
-              </Button>
-            </CardFooter>
-          </Card>
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 place-items-start py-8 px-4 ">
+        {data?.map(({ profiles: user, id, name }) => (
+          <QuizCard user={user} id={id} name={name} />
         ))}
       </section>
     </main>

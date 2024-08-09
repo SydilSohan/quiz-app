@@ -47,8 +47,8 @@ const ExamPage = async ({ params }: Props) => {
         ? null
         : new Date(submissions?.created_at!).getTime() + quiz?.time * 60 * 1000;
     return (
-      <main className="max-w-screen-md mx-auto border-1 border-gray-400 rounded-md p-4 border-solid">
-        <div className="p-4 border-solid border-1 border-black">
+      <main className=" mx-auto border-1 border-gray-400 rounded-md p-4 border-solid w-full">
+        <div className="p-4 border-solid border-1 border-black mx-auto max-w-screen-md">
           <SingleQuiz
             questions={quiz?.questions as QuestionColumnType[]}
             proceed
@@ -65,7 +65,10 @@ const ExamPage = async ({ params }: Props) => {
   }
 
   return (
-    <main className="w-full mx-auto flex  justify-center items-center min-h-screen p-4">
+    <main className="w-full mx-auto space-y-2 p-4 flex-col">
+      <Button>
+        <Link href="/">Back</Link>
+      </Button>
       <Card className="max-w-screen-sm mx-auto  flex-1">
         <CardHeader className="px-6 pt-6">
           <CardTitle className="text-2xl font-bold">

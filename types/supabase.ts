@@ -42,6 +42,7 @@ export type Database = {
           id: string
           last_name: string | null
           metadata: Json | null
+          saved: number[]
         }
         Insert: {
           created_at?: string
@@ -50,6 +51,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           metadata?: Json | null
+          saved?: number[]
         }
         Update: {
           created_at?: string
@@ -58,6 +60,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           metadata?: Json | null
+          saved?: number[]
         }
         Relationships: []
       }
@@ -65,12 +68,15 @@ export type Database = {
         Row: {
           answers: Json | null
           created_at: string
+          hidden_answers: boolean
           id: number
           image: string | null
           inst: string | null
           instructions: string
           logo: string | null
           name: string
+          neg_marking: number
+          pass_mark: number
           privacy: Database["public"]["Enums"]["privacy"]
           questions: Json
           retake: boolean
@@ -80,12 +86,15 @@ export type Database = {
         Insert: {
           answers?: Json | null
           created_at?: string
+          hidden_answers?: boolean
           id?: number
           image?: string | null
           inst?: string | null
           instructions?: string
           logo?: string | null
           name?: string
+          neg_marking?: number
+          pass_mark?: number
           privacy?: Database["public"]["Enums"]["privacy"]
           questions: Json
           retake?: boolean
@@ -95,12 +104,15 @@ export type Database = {
         Update: {
           answers?: Json | null
           created_at?: string
+          hidden_answers?: boolean
           id?: number
           image?: string | null
           inst?: string | null
           instructions?: string
           logo?: string | null
           name?: string
+          neg_marking?: number
+          pass_mark?: number
           privacy?: Database["public"]["Enums"]["privacy"]
           questions?: Json
           retake?: boolean

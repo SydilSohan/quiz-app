@@ -33,11 +33,16 @@ import {
 import SubmitButton from "@/components/global/SubmitButton";
 import Link from "next/link";
 import { toast } from "sonner";
-import { QuestionColumnType } from "@/types/schemas";
+import {
+  ExamPageFormSchema,
+  ExamPageFormSchemaType,
+  QuestionColumnType,
+} from "@/types/schemas";
 import { getResults } from "@/app/exam/[id]/action";
 import { Tables } from "@/types/supabase";
 import CountdownTimer from "./CountDown";
 import { data } from "autoprefixer";
+import { createUrl } from "@/hooks/createUrl";
 type Props = {
   questions: QuestionColumnType[];
   quizId?: number;
@@ -50,12 +55,6 @@ type Props = {
   date: number | null;
   submissionId: number;
 };
-const ansSchema = z.object({
-  questionId: z.string(),
-  answer: z.string().min(1, "Answer is required"),
-});
-
-export const formSchema = z.record(ansSchema);
 
 const SingleQuiz = ({
   questions,
@@ -69,14 +68,14 @@ const SingleQuiz = ({
   date,
   submissionId,
 }: Props) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<ExamPageFormSchemaType>({
+    resolver: zodResolver(ExamPageFormSchema),
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // console.log(Object.values(data));
+  const onSubmit = async (data: ExamPageFormSchemaType) => {
+    console.log(Object.values(data), data);
     const { status, message } = await getResults({
-      answers: Object.values(data),
+      answers: data,
       quizId: quizId!,
     });
     toast[status](message);
@@ -115,16 +114,18 @@ const SingleQuiz = ({
                         {index + 1}. {question.name}
                       </CardTitle>
                       {question?.image && (
-                        <Image
-                          src={
-                            process.env.NEXT_PUBLIC_QUIZASSETS_URL! +
-                            question?.image
-                          }
-                          alt={question?.name}
-                          width={300}
-                          height={150}
-                          className="drop-shadow-sm rounded-md mt-2 object-cover w-1/2"
-                        />
+                        <div className="w-full h-full  mb-4 pb-4 max-w-44">
+                          <Image
+                            src={createUrl(
+                              process.env.NEXT_PUBLIC_QUIZASSETS_URL!,
+                              question?.image!
+                            )}
+                            alt={question?.name}
+                            width={300}
+                            height={150}
+                            className="drop-shadow-sm rounded-md mt-2 object-cover "
+                          />
+                        </div>
                       )}
                     </CardHeader>
                     <CardContent>

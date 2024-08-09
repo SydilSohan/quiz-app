@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import Signout from "@/app/account/(adminroutes)/Signout";
 
 const ClientLogin = () => {
-  const { user, loading } = useGetUser();
+  const { user, loading } = useGetUser({ getProfile: false });
 
   const router = useRouter();
   if (loading) return <Loader />;

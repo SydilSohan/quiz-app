@@ -40,10 +40,11 @@ export type Params = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 export type Results = {
-  questionId: number;
+  questionId: string;
   answer: string;
   isCorrect: boolean;
   name: string;
+   correctAnswer  : null | string
 };
 
 export type SupabaseUser = {

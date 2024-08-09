@@ -26,41 +26,13 @@ async function Page({
   if (type === "compose")
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <div className="flex items-center justify-between">
-          {/* <h1 className="text-lg font-semibold md:text-2xl">
-          {params.type} Quiz - {data?.name}
-        </h1> */}
-
+        {/* <div className="flex items-center justify-between">
           <Button asChild className="mt-4">
             <Link href={"/account/quizzes"}>Go Back</Link>
           </Button>
-          {type && (
-            <Button asChild className="mt-4">
-              <Link href={"/account/quizzes/" + id + "/preview"}>Preview </Link>
-            </Button>
-          )}
-        </div>
+        </div> */}
         <ExamForm quiz={data} user={user} />
       </main>
     );
-  // if (type === "preview") {
-  //   return (
-  //     <main className="p-4">
-  //       <Button asChild className="my-2">
-  //         <Link href={"/account/quizzes/compose/" + params.type[1]}>Edit</Link>
-  //       </Button>
-  //       <SingleQuiz
-  //         questions={data?.questions as QuestionColumnType[]}
-  //         instructions={data?.instructions!}
-  //         proceed
-  //         name={data?.name!}
-  //         quizId={data?.id!}
-  //         userId={user?.id!}
-  //         date={new Date().getTime() + 2 * 60 * 60 * 1000}
-
-  //       />
-  //     </main>
-  //   );
-  // }
 }
 export default Page;

@@ -88,7 +88,17 @@ export const QuizValuesSchema = z.object({
   image: z.any().optional(),
   inst: z.string().optional(),
   retake: z.boolean().optional(),
+  hidden_answers: z.boolean().optional(),
+  neg_marking: z.coerce.number().min(0).max(10).optional(),
+  pass_mark: z.coerce.number().min(1).max(99).optional(),
 });
+const ansSchema = z.object({
+  questionId: z.string(),
+  answer: z.string().min(1, "Answer is required"),
+});
+
+export const ExamPageFormSchema = z.record(ansSchema);
+export type ExamPageFormSchemaType = z.infer<typeof ExamPageFormSchema>;
 export type QuestionType = z.infer<typeof Question>;
 export type AnswerType = z.infer<typeof answer>;
 export type QuizValues = z.infer<typeof QuizValuesSchema>;
