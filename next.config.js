@@ -19,6 +19,12 @@ const nextConfig = {
             port: '',
             // pathname: '/account123/**',
            },
+            {
+            protocol: 'https',
+            hostname: 'hfyxinnmjiaixlbejenm.supabase.co',
+            port: '',
+            // pathname: '/account123/**',
+           },
            {
             protocol: 'https',
             hostname: 'images.unsplash.com',

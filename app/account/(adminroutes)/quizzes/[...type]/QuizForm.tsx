@@ -228,7 +228,7 @@ export default function QuizForm({ quiz, user }: Props) {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis]}
+      // modifiers={[restrictToVerticalAxis]}
     >
       <SortableContext items={questionFields}>
         <Form {...form}>
