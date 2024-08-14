@@ -2,18 +2,8 @@ import { Metadata } from "next";
 import config from "@/app.config.json";
 import { HeroHighlight } from "@/components/aceternity/hero-highlight";
 import { createClient } from "@/utils/supabase/client";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { HeartIcon } from "@radix-ui/react-icons";
 import QuizCard from "./QuizCard";
-import Image from "next/image";
+export const revalidate = 60 * 3;
 export const metadata: Metadata = {
   title: config.appName,
   description: config.metaDescription,
@@ -52,7 +42,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Index() {
+export default async function QuizPage() {
   const supabase = createClient();
   const { data } = await supabase
     .from("quizzes")
@@ -72,7 +62,7 @@ export default async function Index() {
       </HeroHighlight>
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 place-items-start py-8 px-4 ">
         {data?.map(({ profiles: user, id, name }) => (
-          <QuizCard user={user} id={id} name={name} />
+          <QuizCard user={user} id={id} name={name} key={id} />
         ))}
       </section>
     </main>

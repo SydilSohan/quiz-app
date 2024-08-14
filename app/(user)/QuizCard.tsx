@@ -23,9 +23,7 @@ const QuizCard = ({ id, name, user }: Props) => {
     <Card key={id} className="w-full rounded-sm">
       <CardHeader>
         <CardTitle className="capitalize text-xl">{name}</CardTitle>
-        <CardDescription>
-          by {`${user?.first_name} ${user?.last_name}` || "unknown"}
-        </CardDescription>
+        <CardDescription></CardDescription>
       </CardHeader>
       <CardFooter className="space-x-2">
         {/* <HeartButton id={id} /> */}

@@ -3,16 +3,12 @@ import UploadForm from "./UploadForm";
 import MediaCard from "./MediaCard";
 import { createUrl } from "@/hooks/createUrl";
 type Props = {};
-export default async function Index() {
+export default async function mediaPage() {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data } = await supabase
-    .from("quizzes")
-    .select("name, id, profiles(first_name, last_name)")
-    .eq("privacy", "public")
-    .limit(10);
+
   const { data: storage, error } = await supabase.storage
     .from("quizassets")
     .list(user?.id);

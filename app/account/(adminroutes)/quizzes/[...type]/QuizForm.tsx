@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -13,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Tables } from "@/types/supabase";
@@ -22,15 +21,8 @@ import { QuestionType, QuizValues, QuizValuesSchema } from "@/types/schemas";
 import SubmitButton from "@/components/global/SubmitButton";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
-import {
-  DeleteIcon,
-  ImageOff,
-  ImagePlusIcon,
-  Images,
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
-import { useEffect } from "react";
+import { ImagePlusIcon, PlusIcon, Trash2Icon, TrashIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -53,81 +45,8 @@ import QuizSettings from "./QuizSettings";
 import Link from "next/link";
 import MediaPicker from "./MediaPicker";
 import { createUrl } from "@/hooks/createUrl";
-const OptionFieldsNew = ({ form, questionIndex }: any) => {
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: `questions.${questionIndex}.options` as const,
-  });
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-  return (
-    <div className="w-full sm:w-2/5">
-      {fields.map((oField, index) => (
-        <div
-          key={oField.id}
-          className="flex w-full flex-row items-center justify-center gap-4 align-middle"
-        >
-          <FormField
-            control={form.control}
-            name={`questions.${questionIndex}.options.${index}` as const}
-            render={({ field }) => (
-              <FormItem className=" w-full  ">
-                <FormControl>
-                  <Input
-                    placeholder={`enter option ${index + 1} `}
-                    type="text"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription></FormDescription>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name={`questions.${questionIndex}.answer` as const}
-            render={({ field }) => (
-              <FormItem className=" flex w-1/5 items-center gap-4">
-                <FormControl>
-                  <Checkbox
-                    checked={
-                      field.value ===
-                      form.watch(`questions.${questionIndex}.options.${index}`)
-                    }
-                    onCheckedChange={(checked: any) => {
-                      if (checked) {
-                        field.onChange(
-                          form.watch(
-                            `questions.${questionIndex}.options.${index}`
-                          )
-                        );
-                      } else {
-                        field.onChange("");
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button
-            type="button"
-            variant={"ghost"}
-            className="my-2  text-red-500 "
-            onClick={() => remove(index)}
-          >
-            <Trash2Icon />
-          </Button>
-        </div>
-      ))}
-      <Button type="button" className="my-2" onClick={() => append("")}>
-        Add Option
-      </Button>
-    </div>
-  );
-};
 type Props = {
   quiz?: Tables<"quizzes"> | null;
   user: User | null;
@@ -173,28 +92,25 @@ export default function QuizForm({ quiz, user }: Props) {
   }, [form.getValues()]);
   const onSubmit = async (data: QuizValues) => {
     const supabase = createClient();
-    const uploadPromises = data.questions.map(async (question) => {
-      if (question.image instanceof File === false) return question;
-      const { data, error } = await supabase.storage
-        .from("quizassets")
-        .upload(`/${Math.random()}-${question.image.name}`, question.image);
-      return {
-        ...question,
-        image: data?.path,
-      };
-    });
+    // const uploadPromises = data.questions.map(async (question) => {
+    //   if (question.image instanceof File === false) return question;
+    //   const { data, error } = await supabase.storage
+    //     .from("quizassets")
+    //     .upload(`/${Math.random()}-${question.image.name}`, question.image);
+    //   return {
+    //     ...question,
+    //     image: data?.path,
+    //   };
+    // });
 
-    const dataWithImagePathPromise = Promise.all(uploadPromises);
-    const dataWithImagePath = await dataWithImagePathPromise;
-    const { error, data: updatedData } = await supabase
-      .from("quizzes")
-      .upsert({
-        ...data,
-        questions: dataWithImagePath,
-        user_id: user?.id!,
-        id: quiz?.id ?? undefined,
-      })
-      .select("*");
+    // const dataWithImagePathPromise = Promise.all(uploadPromises);
+    // const dataWithImagePath = await dataWithImagePathPromise;
+    const { error } = await supabase.from("quizzes").upsert({
+      ...data,
+      questions: data.questions,
+      user_id: user?.id!,
+      id: quiz?.id ?? undefined,
+    });
     if (error)
       toast.error("Error", {
         description: error.message,
@@ -210,9 +126,7 @@ export default function QuizForm({ quiz, user }: Props) {
       const oldIndex = questionFields.findIndex(
         (item) => item.id === active.id
       );
-      console.log(oldIndex);
       const newIndex = questionFields.findIndex((item) => item.id === over?.id);
-      console.log(newIndex);
 
       const newItems = arrayMove(
         form.getValues("questions"),
@@ -228,7 +142,7 @@ export default function QuizForm({ quiz, user }: Props) {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
-      // modifiers={[restrictToVerticalAxis]}
+      modifiers={[restrictToVerticalAxis]}
     >
       <SortableContext items={questionFields}>
         <Form {...form}>
@@ -276,8 +190,6 @@ export default function QuizForm({ quiz, user }: Props) {
               )}
             />
 
-            {/* <h2 className="text-2xl"> Quiz Questions and Answers Below</h2> */}
-            {/* <Separator /> */}
             <Accordion type="multiple" className="w-full space-y-4">
               {questionFields.map((field, index) => (
                 <SortableItem
@@ -285,7 +197,6 @@ export default function QuizForm({ quiz, user }: Props) {
                   index={index}
                   name={field.name}
                   removeQuestion={removeQuestion}
-                  // className="space-y-4 w-full py-2 px-6 shadow-lg rounded-md"
                 >
                   <AccordionContent className="flex flex-row gap-4 flex-wrap">
                     <input
@@ -300,7 +211,6 @@ export default function QuizForm({ quiz, user }: Props) {
                       name={`questions.${index}.name` as const}
                       render={({ field }) => (
                         <FormItem className="  w-full grid col-span-1 ">
-                          {/* <FormLabel> Name</FormLabel> */}
                           <FormControl>
                             <Input
                               placeholder="Enter question name"
@@ -308,74 +218,6 @@ export default function QuizForm({ quiz, user }: Props) {
                               {...field}
                             />
                           </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`questions.${index}.image` as const}
-                      render={({ field }) => (
-                        <FormItem className="space-x-2 w-full sm:w-1/2">
-                          {/* display the image here only if it exists */}
-                          {/* <FormLabel className="capitalize w-full">
-                            Quiz Image
-                          </FormLabel>{" "} */}
-
-                          {/* <FormControl> */}
-                          {/* <Input
-                              type="file"
-                              accept="image/png, image/gif, image/jpeg"
-                              onChange={(e) => {
-                                const file = e.target.files![0];
-                                field.onChange(file);
-                              }}
-                            /> */}
-                          {/* </FormControl> */}
-                          <Link
-                            prefetch
-                            scroll={false}
-                            className="bg-gray-300 w-full aspect-video  flex items-center justify-center relative rounded-sm "
-                            href={
-                              "?" +
-                              new URLSearchParams({
-                                index: index.toString(),
-                              })
-                            }
-                          >
-                            {field.value ? (
-                              <>
-                                <Image
-                                  fill
-                                  src={
-                                    field.value instanceof File
-                                      ? URL.createObjectURL(field.value)
-                                      : createUrl(
-                                          process.env
-                                            .NEXT_PUBLIC_QUIZASSETS_URL!,
-                                          field.value
-                                        )
-                                  }
-                                  alt="quiz image"
-                                  className=" "
-                                />
-                              </>
-                            ) : (
-                              <ImagePlusIcon size={40} />
-                            )}
-                          </Link>
-                          {field.value && (
-                            <Button
-                              type="button"
-                              className="flex justify-self-start self-start z-20"
-                              variant={"destructive"}
-                              onClick={() => field.onChange("")}
-                            >
-                              <ImageOff className="" />
-                            </Button>
-                          )}
 
                           <FormMessage />
                         </FormItem>
@@ -402,13 +244,63 @@ export default function QuizForm({ quiz, user }: Props) {
                         )}
                       />
                     )}
+
+                    <FormField
+                      control={form.control}
+                      name={`questions.${index}.image` as const}
+                      render={({ field }) => (
+                        <FormItem className=" w-full sm:w-1/2">
+                          <Link
+                            prefetch
+                            scroll={false}
+                            className="bg-gray-300   flex items-center justify-center relative rounded-sm  w-1/2 "
+                            href={
+                              "?" +
+                              new URLSearchParams({
+                                index: index.toString(),
+                              })
+                            }
+                          >
+                            {field.value ? (
+                              <Image
+                                // fill
+                                layout="responsive"
+                                width={240}
+                                height={160}
+                                src={createUrl(
+                                  process.env.NEXT_PUBLIC_QUIZASSETS_URL!,
+                                  field.value
+                                )}
+                                alt="quiz image"
+                                className=" "
+                                sizes="(max-width: 640px) 100vw, 640px; (max-width: 1280px) 33vw; "
+                              />
+                            ) : (
+                              <ImagePlusIcon size={30} />
+                            )}
+                          </Link>
+                          {field.value && (
+                            <Button
+                              type="button"
+                              className="flex z-20 text-xs"
+                              variant={"destructive"}
+                              onClick={() => field.onChange("")}
+                            >
+                              Remove Image
+                            </Button>
+                          )}
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <div className="w-full">
                       <Button
                         type="button"
-                        className="my-2  bg-red-400"
+                        variant={"destructive"}
                         onClick={() => removeQuestion(index)}
                       >
-                        <DeleteIcon />
+                        <TrashIcon size={16} className="mr-1" /> Delete question
                       </Button>
                     </div>
                   </AccordionContent>
@@ -476,3 +368,108 @@ export default function QuizForm({ quiz, user }: Props) {
     </DndContext>
   );
 }
+
+const OptionFieldsNew = ({
+  form,
+  questionIndex,
+}: {
+  form: UseFormReturn<QuizValues>;
+  questionIndex: number;
+}) => {
+  const { fields, append, remove, update } = useFieldArray({
+    control: form.control,
+    name: `questions.${questionIndex}.options` as const,
+  });
+  const [input, setInput] = useState("");
+  const [isKeyReleased, setIsKeyReleased] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInput(value);
+  };
+  function handleKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+    value?: string[] | null
+  ) {
+    const { key } = e;
+    const possibleSaveKeys = new Set(["Enter", "Tab", ","]);
+    if (possibleSaveKeys.has(key)) {
+      e.preventDefault();
+      append(input);
+      setInput("");
+    }
+
+    if (
+      key === "Backspace" &&
+      !input.length &&
+      value?.length &&
+      isKeyReleased
+    ) {
+      e.preventDefault();
+      const poppedInput = value.pop();
+      setInput(poppedInput!);
+      remove(value.length);
+    }
+    setIsKeyReleased(false);
+  }
+  return (
+    <div className="w-full sm:w-2/5">
+      <FormField
+        control={form.control}
+        name={`questions.${questionIndex}.options` as const}
+        render={({ field }) => (
+          <FormItem className=" w-full  space-x-3 ">
+            <FormField
+              control={form.control}
+              name={`questions.${questionIndex}.answer` as const}
+              render={({ field: answerField }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Options...</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={answerField.onChange}
+                      defaultValue={answerField.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      {field.value?.map((option, index) => (
+                        <FormItem className="flex items-center space-x-3 space-y-0 justify-stretch">
+                          <FormControl>
+                            <RadioGroupItem value={option} />
+                          </FormControl>
+                          <FormLabel className="font-normal flex gap-1 items-center justify-between w-full">
+                            <span>{option}</span>
+                            <Trash2Icon
+                              size={14}
+                              onClick={() => remove(index)}
+                            />
+                          </FormLabel>
+                        </FormItem>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormControl>
+              <Input
+                className="mt-12"
+                type="text"
+                placeholder="eg option 1"
+                value={input}
+                onChange={handleChange}
+                onKeyDown={(e) => handleKeyDown(e, questionIndex, field.value)}
+                onKeyUp={() => setIsKeyReleased(true)}
+              />
+            </FormControl>
+            <FormDescription>
+              enter options one by one, press enter or "," to save, backspace to
+              delete
+            </FormDescription>
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+};
