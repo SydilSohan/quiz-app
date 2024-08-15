@@ -92,19 +92,7 @@ export default function QuizForm({ quiz, user }: Props) {
   }, [form.getValues()]);
   const onSubmit = async (data: QuizValues) => {
     const supabase = createClient();
-    // const uploadPromises = data.questions.map(async (question) => {
-    //   if (question.image instanceof File === false) return question;
-    //   const { data, error } = await supabase.storage
-    //     .from("quizassets")
-    //     .upload(`/${Math.random()}-${question.image.name}`, question.image);
-    //   return {
-    //     ...question,
-    //     image: data?.path,
-    //   };
-    // });
 
-    // const dataWithImagePathPromise = Promise.all(uploadPromises);
-    // const dataWithImagePath = await dataWithImagePathPromise;
     const { error } = await supabase.from("quizzes").upsert({
       ...data,
       questions: data.questions,
@@ -234,7 +222,12 @@ export default function QuizForm({ quiz, user }: Props) {
                           <FormItem className=" w-full sm:w-2/5">
                             <FormLabel> Fill in Blank Answer</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input
+                                onChange={(e) => {
+                                  e.preventDefault();
+                                  field.onChange(field.value);
+                                }}
+                              />
                             </FormControl>
                             <FormDescription>
                               This is your answer.
@@ -381,7 +374,7 @@ const OptionFieldsNew = ({
     name: `questions.${questionIndex}.options` as const,
   });
   const [input, setInput] = useState("");
-  const [isKeyReleased, setIsKeyReleased] = useState(false);
+  const [isKeyReleased, setIsKeyReleased] = useState(true);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInput(value);
@@ -411,6 +404,9 @@ const OptionFieldsNew = ({
       remove(value.length);
     }
     setIsKeyReleased(false);
+  }
+  function handleKeyUp() {
+    setIsKeyReleased(true);
   }
   return (
     <div className="w-full sm:w-2/5">

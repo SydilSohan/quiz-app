@@ -51,7 +51,7 @@ const TakenIdPage = async ({ params }: Props) => {
           </div>
           <TrophyIcon className="h-8 w-8 text-primary" />
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 py-6">
+        <CardContent className="grid grid-cols-3  gap-2 ">
           <div className="flex flex-col items-center">
             <div className="text-4xl font-bold text-green-600">
               {data.score}

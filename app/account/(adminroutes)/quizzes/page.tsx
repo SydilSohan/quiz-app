@@ -12,6 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tables } from "@/types/supabase";
+import GenerateQuiz from "./Generate";
+import { use } from "react";
 
 async function QuizzesPage() {
   const supabase = createClient();
@@ -28,10 +30,12 @@ async function QuizzesPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">Quizzes</h1>
-
-        <Button asChild className="mt-4">
-          <Link href={"/account/quizzes/compose"}>Add Quiz</Link>
-        </Button>
+        <div className="flex gap-2">
+          <GenerateQuiz user={user} />
+          <Button asChild className="">
+            <Link href={"/account/quizzes/compose"}>Add Quiz</Link>
+          </Button>
+        </div>
       </div>
 
       <TableDemo quizzes={data} />
@@ -47,7 +51,6 @@ function TableDemo({ quizzes }: { quizzes: Partial<Tables<"quizzes">>[] }) {
         <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Link</TableHead>
 
@@ -57,9 +60,9 @@ function TableDemo({ quizzes }: { quizzes: Partial<Tables<"quizzes">>[] }) {
         <TableBody>
           {quizzes.map((quiz) => (
             <TableRow key={quiz.id}>
-              <TableCell className="font-medium">{quiz.id}</TableCell>
-
-              <TableCell className="font-medium">{quiz.name}</TableCell>
+              <TableCell className="font-medium">
+                {quiz.name?.substring(0, 12)}
+              </TableCell>
               <TableCell className="font-medium">
                 {process.env.NEXT_PUBLIC_SITE_URL! + "/exam/" + quiz.id}
               </TableCell>

@@ -7,7 +7,7 @@ type Props = {
 
 const SubmissionsLayout = ({ children, submission }: Props) => {
   return (
-    <div className="flex flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <div className="flex flex-col gap-2 p-4 lg:gap-2 ">
       {children}
 
       {submission}

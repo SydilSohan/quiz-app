@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { number, z } from "zod";
 export const SignUpSchema = z
   .object({
     first_name: z.string().min(2, {
@@ -96,6 +96,18 @@ const ansSchema = z.object({
   questionId: z.string(),
   answer: z.string().min(1, "Answer is required"),
 });
+
+export const promptSchema = z.object({
+  prompt: z.string().min(10, "Prompt is required"),
+  difficulty: z.enum(["easy", "medium", "hard"]),
+  topic: z.string().min(1, "Topic is required").optional(),
+  number_of_questions: z.coerce
+    .number()
+    .int()
+    .min(1, "Number of questions is required, minimum 1")
+    .max(50, "Maximum number of questions is 50"),
+});
+export type PromptType = z.infer<typeof promptSchema>;
 
 export const ExamPageFormSchema = z.record(ansSchema);
 export type ExamPageFormSchemaType = z.infer<typeof ExamPageFormSchema>;

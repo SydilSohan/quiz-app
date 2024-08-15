@@ -48,7 +48,7 @@ export async function getResults({answers, quizId}: {answers: ExamPageFormSchema
       questionId: question.id,
       answer: answer?.answer || 'No answer',
       isCorrect: question.answer.toLowerCase() === answer?.answer.toLowerCase(),
-      correctAnswer : !hidden_answers ? question.answer : null
+      correctAnswer : hidden_answers ? null : question.answer,
     }); 
   }
   let grade = 'F';
@@ -65,16 +65,16 @@ export async function getResults({answers, quizId}: {answers: ExamPageFormSchema
   //     grade = 'D';
   //   }
   // }
-  // console.log(
-  //   score,
-  //   results,
-  //   mcqScore,
-  //   fillInTheBlankScore,
-  //   samplingScore,
-  //   trueFalseScore,
-  //   grade,
-  //   passed
-  // );
+  console.log(
+    score,
+    results,
+    mcqScore,
+    fillInTheBlankScore,
+    samplingScore,
+    trueFalseScore,
+    grade,
+    passed
+  );
   return {
     score,
     results,

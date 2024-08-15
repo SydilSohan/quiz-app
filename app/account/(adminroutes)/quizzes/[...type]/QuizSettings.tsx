@@ -89,7 +89,7 @@ const QuizSettings = ({ form }: Props) => {
                     }}
                   />
                 </FormControl>
-                <FormLabel> Can See correct answer in results?</FormLabel>
+                <FormLabel> hide correct answer in results?</FormLabel>
                 <FormDescription>
                   Whether examinees can see the right answer after taking the
                   quiz
