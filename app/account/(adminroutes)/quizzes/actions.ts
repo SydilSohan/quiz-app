@@ -64,7 +64,7 @@ export async function generateQuiz({topic, prompt, number_of_questions, difficul
     ],
     "model": "llama-3.1-70b-versatile",
     "temperature": 1,
-    "max_tokens": 3024,
+    "max_tokens": 10024,
     "top_p": 1,
     "stream": false,
     "response_format": {
@@ -85,7 +85,7 @@ export async function generateQuiz({topic, prompt, number_of_questions, difficul
     return {status: "success", message : "Quiz generated successfully"}
     } catch (error) {
         console.log(error, "error")
-        return {status: "error", message: JSON.stringify(error)}
+        return {status: "error", message: `${error}`}
     }
 
 

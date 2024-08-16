@@ -23,15 +23,14 @@ async function QuizzesPage() {
   const { data, error } = await supabase
     .from("quizzes")
     .select("id, name")
-    .eq("user_id", user?.id!)
-    .limit(10);
+    .eq("user_id", user?.id!);
   if (error) throw new Error("An error occurred while fetching quizzes");
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">Quizzes</h1>
         <div className="flex gap-2">
-          <GenerateQuiz user={user} />
+          <GenerateQuiz />
           <Button asChild className="">
             <Link href={"/account/quizzes/compose"}>Add Quiz</Link>
           </Button>

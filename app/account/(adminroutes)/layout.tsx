@@ -1,11 +1,9 @@
 import Link from "next/link";
 import {
-  BeerIcon,
   FileIcon,
   FileQuestionIcon,
   GraduationCap,
   Home,
-  MapIcon,
   Menu,
   ShoppingCart,
   User2,
@@ -14,11 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { createClient } from "@/utils/supabase/server";
 import SingleNav from "@/components/global/SingleNav";
 import BreadCrumbs from "@/components/global/BreadCrumbs";
 import Signout from "./Signout";
-import { redirect } from "next/navigation";
 
 async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const userNavigation = [
@@ -50,13 +46,6 @@ async function DashboardLayout({ children }: { children: React.ReactNode }) {
       icon: <FileIcon size={18} />,
     },
   ];
-  const supabase = createClient();
-  const { data, error } = await supabase.auth.getUser();
-  const { data: role, error: perr } = await supabase
-    .from("profiles")
-    .select("role")
-    .single();
-  if (error) redirect(`/auth/login?status=failed`);
 
   return (
     <div className="grid min-h-screen max-w-[100vw] overflow-x-hidden md:w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
