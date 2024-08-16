@@ -1,6 +1,5 @@
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { ViewTransitions } from "next-view-transitions";
 import { Montserrat } from "next/font/google";
 const montserrat = Montserrat({
   weight: ["400", "500", "700"],

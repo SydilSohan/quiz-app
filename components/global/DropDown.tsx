@@ -1,5 +1,5 @@
-'use client';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,15 +7,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { CircleUser } from 'lucide-react';
-import React from 'react';
-import { toast } from 'sonner';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { createClient } from '@/utils/supabase/client';
-import { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-import { Link } from 'next-view-transitions';
+} from "@/components/ui/dropdown-menu";
+import { CircleUser } from "lucide-react";
+import React from "react";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 type Props = {
   user: User | null;
 };
@@ -50,13 +50,13 @@ const DropDown = ({ user }: Props) => {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Link href={'/account/settings'}>Settings</Link>
+          <Link href={"/account/settings"}>Settings</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async () => {
             const { error } = await supabase.auth.signOut();
-            error ? toast.error('error') : toast.success('Logged Out');
+            error ? toast.error("error") : toast.success("Logged Out");
             router.refresh();
           }}
         >

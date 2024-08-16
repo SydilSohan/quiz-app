@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import { Suspense } from "react";
 
 async function SubmissionsDashboard() {
   const sup = createClient();
@@ -30,23 +31,26 @@ async function SubmissionsDashboard() {
             <TableHead>Examinee</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
-          {data?.map((sub) => (
-            <TableRow key={sub.id}>
-              <TableCell className="font-medium">{sub.id}</TableCell>
+          <Suspense fallback={<div>Loading...</div>}>
+            {data?.map((sub) => (
+              <TableRow key={sub.id}>
+                <TableCell className="font-medium">{sub.id}</TableCell>
 
-              <TableCell className="font-medium">
-                {sub.profiles?.first_name}
-              </TableCell>
-              <TableCell className="font-medium"></TableCell>
+                <TableCell className="font-medium">
+                  {sub.profiles?.first_name}
+                </TableCell>
+                <TableCell className="font-medium"></TableCell>
 
-              <TableCell className="text-left">
-                <Button asChild>
-                  <Link href={`/account/submissions/${sub.id}`}>View</Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                <TableCell className="text-left">
+                  <Button asChild>
+                    <Link href={`/account/submissions/${sub.id}`}>View</Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </Suspense>
         </TableBody>
       </Table>
     </div>

@@ -11,15 +11,8 @@ type Props = {
   index: number;
   children?: React.ReactNode;
   name: string;
-  removeQuestion: UseFieldArrayRemove;
 };
-export default function SortableItem({
-  id,
-  index,
-  children,
-  name,
-  removeQuestion,
-}: Props) {
+export default function SortableItem({ id, index, children, name }: Props) {
   const {
     attributes,
     listeners,
@@ -37,7 +30,7 @@ export default function SortableItem({
   return (
     <AccordionItem
       value={id}
-      className=" px-4 shadow-lg "
+      className=" px-4 shadow-lg  bg-white"
       key={id}
       ref={setNodeRef}
       style={{

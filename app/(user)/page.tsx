@@ -3,6 +3,7 @@ import config from "@/app.config.json";
 import { HeroHighlight } from "@/components/aceternity/hero-highlight";
 import { createClient } from "@/utils/supabase/client";
 import QuizCard from "./QuizCard";
+import { redirect } from "next/navigation";
 export const revalidate = 60 * 3;
 export const metadata: Metadata = {
   title: config.appName,

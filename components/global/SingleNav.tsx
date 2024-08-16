@@ -1,7 +1,5 @@
-'use client';
-import { Link } from 'next-view-transitions';
-import { usePathname } from 'next/navigation';
-import React from 'react';
+import Link from "next/link";
+import { SheetClose } from "../ui/sheet";
 
 type Props = {
   item: {
@@ -11,16 +9,10 @@ type Props = {
   };
 };
 const SingleNav = ({ item }: Props) => {
-  const pathname = usePathname();
-
   return (
     <Link
       href={item.href}
-      className={`flex items-center gap-2 rounded-lg px-2 py-1  text-sm capitalize transition-all hover:text-primary ${
-        item.href === pathname
-          ? 'bg-muted text-primary'
-          : 'text-muted-foreground '
-      }`}
+      className={`flex items-center gap-2 rounded-lg px-2 py-1  text-sm capitalize transition-all hover:text-primary `}
     >
       {item.icon}
       {item.label}

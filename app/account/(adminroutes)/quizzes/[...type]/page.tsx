@@ -3,6 +3,7 @@ import Link from "next/link";
 import ExamForm from "./QuizForm";
 
 import { createClient } from "@/utils/supabase/server";
+import { Suspense } from "react";
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
@@ -26,12 +27,9 @@ async function Page({
   if (type === "compose")
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        {/* <div className="flex items-center justify-between">
-          <Button asChild className="mt-4">
-            <Link href={"/account/quizzes"}>Go Back</Link>
-          </Button>
-        </div> */}
-        <ExamForm quiz={data} user={user} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ExamForm quiz={data} user={user} />
+        </Suspense>
       </main>
     );
 }

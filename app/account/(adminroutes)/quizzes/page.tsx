@@ -1,32 +1,34 @@
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import GenerateQuiz from "./Generate";
+import { Suspense } from "react";
+import TableDemo from "./QuizzesTable";
+import Spinner from "@/components/global/GlobalSpinner";
+import { createClient } from "@/utils/supabase/server";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tables } from "@/types/supabase";
-import GenerateQuiz from "./Generate";
-import { use } from "react";
-
-async function QuizzesPage() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const { data, error } = await supabase
-    .from("quizzes")
-    .select("id, name")
-    .eq("user_id", user?.id!);
-  if (error) throw new Error("An error occurred while fetching quizzes");
+import TableSkeleton from "./TableSkeleton";
+import SearchInput from "./SearchInput";
+async function QuizzesPage({
+  searchParams,
+}: {
+  searchParams?: {
+    query?: string;
+    page?: string;
+  };
+}) {
+  const query = searchParams?.query || "";
+  const currentPage = Number(searchParams?.page) || 0;
+  console.log(currentPage);
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <main className="flex   flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">Quizzes</h1>
         <div className="flex gap-2">
@@ -36,47 +38,22 @@ async function QuizzesPage() {
           </Button>
         </div>
       </div>
-
-      <TableDemo quizzes={data} />
-    </main>
-  );
-}
-export default QuizzesPage;
-
-function TableDemo({ quizzes }: { quizzes: Partial<Tables<"quizzes">>[] }) {
-  return (
-    <main>
+      <SearchInput placeholder="hey" />
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Link</TableHead>
 
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {quizzes.map((quiz) => (
-            <TableRow key={quiz.id}>
-              <TableCell className="font-medium">
-                {quiz.name?.substring(0, 12)}
-              </TableCell>
-              <TableCell className="font-medium">
-                {process.env.NEXT_PUBLIC_SITE_URL! + "/exam/" + quiz.id}
-              </TableCell>
-
-              <TableCell className="text-right">
-                <Button asChild>
-                  <Link href={`/account/quizzes/compose/${quiz.id}/`}>
-                    Edit
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          <Suspense fallback={<TableSkeleton />}>
+            <TableDemo query={query} currentPage={currentPage} />
+          </Suspense>
         </TableBody>
       </Table>
     </main>
   );
 }
+export default QuizzesPage;

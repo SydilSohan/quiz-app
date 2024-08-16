@@ -1,6 +1,6 @@
-'use client';
-import { usePathname } from 'next/navigation';
-import React from 'react';
+"use client";
+import { usePathname } from "next/navigation";
+import React from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,14 +8,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Link } from 'next-view-transitions';
+} from "@/components/ui/breadcrumb";
+import Link from "next/link";
 
 const BreadCrumbs = () => {
   const paths = usePathname();
-  const pathNames = paths.split('/').filter((path) => path);
+  const pathNames = paths.split("/").filter((path) => path);
 
-  let href = '';
+  let href = "";
   return (
     <Breadcrumb className="w-full capitalize">
       <BreadcrumbList className="flex gap-2 text-xs flex-row">

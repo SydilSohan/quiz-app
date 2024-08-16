@@ -24,11 +24,7 @@ import { useRouter } from "next/navigation";
 import SubmitButton from "@/components/global/SubmitButton";
 import { Input } from "@/components/ui/input";
 
-type Props = {
-  user: User | null;
-};
-
-const GenerateQuiz = ({ user }: Props) => {
+const GenerateQuiz = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen((prev) => !prev)}>
@@ -52,8 +48,6 @@ function GenerateQuizForm() {
   async function onSubmit(data: PromptType) {
     const { status, message } = await generateQuiz(data);
     toast.info(message);
-
-    form.reset();
     router.refresh();
   }
   return (

@@ -18,7 +18,6 @@ type Props = {
 };
 
 const ExamPage = async ({ params }: Props) => {
-  if (!params.id) return <div>ExamPage</div>;
   console.log(params.id);
   const supabase = createClient();
   const { data: quiz, error: dataError } = await supabase
@@ -75,18 +74,16 @@ const ExamPage = async ({ params }: Props) => {
             Take the {quiz?.name} Quiz
           </CardTitle>
           <CardDescription className="text-muted-foreground divide-x-2 divide-solid space-y-2">
-            <p>{quiz?.instructions}</p>
-            <Separator className="w-3/4" />
+            {quiz?.instructions}
+            <br />
             Time Limit : {quiz?.time ? `${quiz.time} minutes` : "None"}
-            <p>
-              <Separator className="w-3/4" />
-              Total Questions :{" "}
-              {Array.isArray(quiz?.questions)
-                ? quiz.questions.length
-                : "Unknown"}
-            </p>
-            <Separator className="w-3/4" />
-            <p>People who've taken this quiz: {count}</p>
+            <br />
+            Total Questions :{" "}
+            {Array.isArray(quiz?.questions)
+              ? quiz.questions.length
+              : "Unknown"}{" "}
+            <br />
+            People who've taken this quiz: {count}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col">

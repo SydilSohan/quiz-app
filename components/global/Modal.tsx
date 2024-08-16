@@ -21,7 +21,7 @@ const Modal = ({ children }: Props) => {
   }
   return (
     <Dialog modal defaultOpen open onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[95%] h-[90vh] sm:h-[70vh]">
+      <DialogContent className="w-[100%] h-[90vh] sm:h-[90vh] ">
         {children}
 
         <DialogFooter className="flex items-end justify-end">

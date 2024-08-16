@@ -2,7 +2,7 @@
 import Loader from "@/components/global/GlobalSpinner";
 import { Button } from "@/components/ui/button";
 import useGetUser from "@/hooks/useGetUser";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import React, { useEffect } from "react";
 
 type Props = {};

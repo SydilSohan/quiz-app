@@ -22,7 +22,7 @@ import SubmitButton from "@/components/global/SubmitButton";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { ImagePlusIcon, PlusIcon, Trash2Icon, TrashIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -31,6 +31,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragOverlay,
+  UniqueIdentifier,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -53,6 +55,7 @@ type Props = {
 };
 export default function QuizForm({ quiz, user }: Props) {
   // const [activeItem, setActiveItem] = useState<QuestionType>({});
+  const [activeId, setActiveId] = useState(null);
   const privacy = ["public", "private"];
   const router = useRouter();
   const form = useForm<QuizValues>({
@@ -107,6 +110,29 @@ export default function QuizForm({ quiz, user }: Props) {
     else toast.success("Success");
     router.refresh();
   };
+  const handleNewDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (active.id !== over?.id) {
+        const oldIndex = questionFields.findIndex(
+          (item) => item.id === active.id
+        );
+        const newIndex = questionFields.findIndex(
+          (item) => item.id === over?.id
+        );
+
+        const newItems = arrayMove(
+          form.getValues("questions"),
+          oldIndex,
+          newIndex
+        );
+        replace(newItems);
+      }
+      setActiveId(null);
+    },
+    [questionFields]
+  );
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
@@ -123,70 +149,77 @@ export default function QuizForm({ quiz, user }: Props) {
       );
       replace(newItems);
     }
+    setActiveId(null);
   }
-
+  function handleDragStart(event: any) {
+    setActiveId(event.active.id);
+  }
+  function handleDragCancel() {
+    setActiveId(null);
+  }
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis]}
-    >
-      <SortableContext items={questionFields}>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-wrap gap-4 "
-          >
-            <MediaPicker userId={user?.id!} setValue={form.setValue} />
-            <div className=" w-full flex gap-2">
-              {" "}
-              <SubmitButton isLoading={form.formState.isSubmitting}>
-                Save
-              </SubmitButton>
-              <QuizSettings form={form} />
-              <Button type="button" className="">
-                <Link href={"/account/quizzes"}>Go Back</Link>
-              </Button>
-            </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-wrap gap-4 "
+      >
+        <MediaPicker userId={user?.id!} setValue={form.setValue} />
+        <div className=" w-full flex gap-2">
+          {" "}
+          <SubmitButton isLoading={form.formState.isSubmitting}>
+            Save
+          </SubmitButton>
+          <QuizSettings form={form} />
+          <Button type="button" className="">
+            <Link href={"/account/quizzes"}>Go Back</Link>
+          </Button>
+        </div>
 
-            <FormField
-              control={form.control}
-              name={`name` as const}
-              render={({ field }) => (
-                <FormItem className=" w-full lg:w-[45%]">
-                  <FormLabel> Quiz Title</FormLabel>
-                  <FormControl>
-                    <Input type="text" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={`instructions` as const}
-              render={({ field }) => (
-                <FormItem className=" w-full lg:w-1/2">
-                  <FormLabel> Quiz Instructions</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
+        <FormField
+          control={form.control}
+          name={`name` as const}
+          render={({ field }) => (
+            <FormItem className=" w-full lg:w-[45%]">
+              <FormLabel> Quiz Title</FormLabel>
+              <FormControl>
+                <Input type="text" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`instructions` as const}
+          render={({ field }) => (
+            <FormItem className=" w-full lg:w-1/2">
+              <FormLabel> Quiz Instructions</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Accordion type="multiple" className="w-full space-y-4">
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleNewDragEnd}
+          onDragCancel={handleDragCancel}
+          onDragStart={handleDragStart}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <Accordion type="multiple" className="w-full space-y-4">
+            <SortableContext items={questionFields}>
               {questionFields.map((field, index) => (
                 <SortableItem
+                  key={field.id}
                   id={field.id}
                   index={index}
                   name={field.name}
-                  removeQuestion={removeQuestion}
                 >
-                  <AccordionContent className="flex flex-row gap-4 flex-wrap">
+                  <AccordionContent className="flex flex-row gap-4 flex-wrap bg-white">
                     <input
                       {...form.register(`questions.${index}.id` as const)}
                       type="number"
@@ -299,66 +332,80 @@ export default function QuizForm({ quiz, user }: Props) {
                   </AccordionContent>
                 </SortableItem>
               ))}
-            </Accordion>
+            </SortableContext>
 
-            <div className="flex w-full flex-row flex-wrap gap-2 items-center">
-              <PlusIcon strokeWidth={0.6} />
-              <Button
-                variant={"outline"}
-                className="my-2"
-                type="button"
-                onClick={() =>
-                  appendQuestion({
-                    id: questionFields.length.toString(),
+            <DragOverlay adjustScale={true}>
+              {activeId ? (
+                <SortableItem
+                  id={activeId}
+                  index={questionFields.findIndex(
+                    (item) => item.id === activeId
+                  )}
+                  name={
+                    questionFields.find((item) => item.id === activeId)
+                      ?.name as string
+                  }
+                />
+              ) : null}
+            </DragOverlay>
+          </Accordion>
+        </DndContext>
+        <div className="flex w-full flex-row flex-wrap gap-2 items-center">
+          <PlusIcon strokeWidth={0.6} />
+          <Button
+            variant={"outline"}
+            className="my-2"
+            type="button"
+            onClick={() =>
+              appendQuestion({
+                id: questionFields.length.toString(),
 
-                    name: "",
-                    type: "mcq",
-                    answer: "A",
-                    options: ["A", "B", "C", "D"],
-                  })
-                }
-              >
-                MCQ
-              </Button>
-              <Button
-                variant={"outline"}
-                className="my-2"
-                type="button"
-                onClick={() =>
-                  appendQuestion({
-                    id: questionFields.length.toString(),
+                name: "",
+                type: "mcq",
+                answer: "A",
+                options: ["A", "B", "C", "D"],
+              })
+            }
+          >
+            MCQ
+          </Button>
+          <Button
+            variant={"outline"}
+            className="my-2"
+            type="button"
+            onClick={() =>
+              appendQuestion({
+                id: questionFields.length.toString(),
 
-                    name: "Example True False Statement",
-                    type: "truefalse",
-                    options: ["True", "False"],
-                    answer: "True",
-                  })
-                }
-              >
-                True/False
-              </Button>
-              <Button
-                variant={"outline"}
-                className="my-2"
-                type="button"
-                onClick={() =>
-                  appendQuestion({
-                    id: questionFields.length.toString(),
+                name: "Example True False Statement",
+                type: "truefalse",
+                options: ["True", "False"],
+                answer: "True",
+              })
+            }
+          >
+            True/False
+          </Button>
+          <Button
+            variant={"outline"}
+            className="my-2"
+            type="button"
+            onClick={() =>
+              appendQuestion({
+                id: questionFields.length.toString(),
 
-                    name: "",
-                    type: "fill",
-                    answer: "example answer",
-                    options: [],
-                  })
-                }
-              >
-                Filler
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </SortableContext>
-    </DndContext>
+                name: "",
+                type: "fill",
+                answer: "example answer",
+                options: [],
+              })
+            }
+          >
+            Filler
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -7,11 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -23,15 +21,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import SubmitButton from "@/components/global/SubmitButton";
-import Link from "next/link";
 import { toast } from "sonner";
 import {
   ExamPageFormSchema,
@@ -41,7 +32,6 @@ import {
 import { getResults } from "@/app/exam/[id]/action";
 import { Tables } from "@/types/supabase";
 import CountdownTimer from "./CountDown";
-import { data } from "autoprefixer";
 import { createUrl } from "@/hooks/createUrl";
 type Props = {
   questions: QuestionColumnType[];
@@ -61,12 +51,8 @@ const SingleQuiz = ({
 
   instructions,
   name,
-  proceed,
-  failed,
   quizId,
-  userId,
   date,
-  submissionId,
 }: Props) => {
   const form = useForm<ExamPageFormSchemaType>({
     resolver: zodResolver(ExamPageFormSchema),
