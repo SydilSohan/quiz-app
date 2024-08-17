@@ -25,10 +25,11 @@ const PaginateTable = async ({ currentPage = 0, query = "", table }: Props) => {
   return (
     <div className="space-y-2">
       <SearchInput placeholder={`Search ${table}`} />
+
       <ScrollArea className="h-[65vh] sm:h-96 shadow-inner">
-        <Table className="shadow-inner">
-          <TableHeader>
-            <TableRow>
+        <Table className="">
+          <TableHeader className="p-0">
+            <TableRow className="py-2 px-0">
               <TableHead>Name</TableHead>
 
               <TableHead className="text-right">Action</TableHead>

@@ -24,9 +24,11 @@ export default function TableDemo({
       )}
       {data?.map(({ id, name }, index) => (
         <TableRow key={index} className="h-12 ">
-          <TableCell className="font-medium  p-0">{name}</TableCell>
+          <TableCell className="font-medium  p-2">
+            {name.substring(0, 15)}
+          </TableCell>
 
-          <TableCell className="text-right justify-end p-0 flex gap-3 text-xs items-center align-middle my-auto">
+          <TableCell className="text-right justify-end p-2 flex gap-2 text-xs items-center align-middle my-auto">
             {" "}
             <Button variant={"secondary"} className="h-6 rounded-full text-xs">
               <Link href={`/account/${table}/${id}`}>View</Link>

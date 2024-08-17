@@ -10,7 +10,7 @@ async function SubmissionsDashboard({
   searchParams?: { query?: string };
 }) {
   return (
-    <main className="border-solid border-2 border-gray-400  rounded-sm p-4  w-full min-w-fit">
+    <main className=" rounded-sm p-4  w-full min-w-fit">
       <Suspense fallback={<TableSkeleton />}>
         <PaginateTable
           currentPage={Number(params.currentPage) || 0}

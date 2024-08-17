@@ -65,9 +65,11 @@ const ExamPage = async ({ params }: Props) => {
 
   return (
     <main className="w-full mx-auto space-y-2 p-4 flex-col">
-      <Button>
-        <Link href="/">Back</Link>
-      </Button>
+      <div>
+        <Button>
+          <Link href="/account">Dashboard</Link>
+        </Button>
+      </div>
       <Card className="max-w-screen-sm mx-auto  flex-1">
         <CardHeader className="px-6 pt-6">
           <CardTitle className="text-2xl font-bold">

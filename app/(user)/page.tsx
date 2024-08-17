@@ -57,7 +57,7 @@ export default async function QuizPage() {
     data: { user },
   } = await supabase.auth.getUser();
   return (
-    <main className="max-w-screen-xl mx-auto  py-12">
+    <main className="max-w-screen-xl sm:mx-auto py-4  lg:py-12 w-full">
       <HeroHighlight>
         <h1 className="font-black text-5xl">{config.content.tagline}</h1>
       </HeroHighlight>
