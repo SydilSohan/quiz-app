@@ -28,7 +28,7 @@ const QuizCard = ({ id, name, user }: Props) => {
       <CardFooter className="space-x-2">
         {/* <HeartButton id={id} /> */}
         <Button>
-          <Link href={"/account/exam/" + id}>View</Link>
+          <Link href={"/account/quizzes/" + id}>View</Link>
         </Button>
       </CardFooter>
     </Card>

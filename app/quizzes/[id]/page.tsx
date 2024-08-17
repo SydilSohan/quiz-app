@@ -1,4 +1,3 @@
-import SingleQuiz from "@/app/exam/[id]/SingleQuiz";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,6 +11,7 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import StartQuiz from "./StartQuiz";
 import { Separator } from "@/components/ui/separator";
+import SingleQuiz from "./SingleQuiz";
 
 type Props = {
   params: { id: string };

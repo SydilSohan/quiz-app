@@ -1,7 +1,22 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import GenerateQuiz from "./Generate";
-import PaginateTable from "@/components/Table/PaginateTable";
+import { Suspense } from "react";
+import Spinner from "@/components/global/GlobalSpinner";
+import { createClient } from "@/utils/supabase/server";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import GenerateQuiz from "../../Generate";
+import SearchInput from "../../../../../../components/Table/SearchInput";
+import TableSkeleton from "../../../../../../components/Table/TableSkeleton";
+import TableDemo from "../../../../../../components/Table/TableRows";
+import PaginateTable from "../../../../../../components/Table/PaginateTable";
 async function QuizzesPage({
   params,
   searchParams,
@@ -28,7 +43,13 @@ async function QuizzesPage({
           </Button>
         </div>
       </div>
-      <PaginateTable currentPage={currentPage} query={query} table="quizzes" />
+      <Suspense fallback={<TableSkeleton />}>
+        <PaginateTable
+          currentPage={currentPage}
+          query={query}
+          table={"quizzes"}
+        />
+      </Suspense>
     </main>
   );
 }

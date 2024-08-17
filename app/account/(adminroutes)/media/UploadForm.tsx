@@ -8,7 +8,6 @@ import { revalidateClient } from "@/app/(user)/actions";
 import { UploadCloudIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { ActionResponse } from "@/app/exam/[id]/action";
 import { uploadFile } from "@/hooks/uploadFile";
 import { create } from "domain";
 

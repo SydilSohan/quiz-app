@@ -475,7 +475,10 @@ const OptionFieldsNew = ({
                       className="flex flex-col space-y-1"
                     >
                       {field.value?.map((option, index) => (
-                        <FormItem className="flex items-center space-x-3 space-y-0 justify-stretch">
+                        <FormItem
+                          key={index}
+                          className="flex items-center space-x-3 space-y-0 justify-stretch"
+                        >
                           <FormControl>
                             <RadioGroupItem value={option} />
                           </FormControl>

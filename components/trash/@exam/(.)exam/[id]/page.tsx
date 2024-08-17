@@ -1,4 +1,4 @@
-import ExamPage from "@/app/exam/[id]/page";
+import ExamPage from "@/app/quizzes/[id]/page";
 import React from "react";
 
 type Props = {

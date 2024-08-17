@@ -18,6 +18,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -29,10 +41,11 @@ import {
   ExamPageFormSchemaType,
   QuestionColumnType,
 } from "@/types/schemas";
-import { getResults } from "@/app/exam/[id]/action";
 import { Tables } from "@/types/supabase";
 import CountdownTimer from "./CountDown";
 import { createUrl } from "@/hooks/createUrl";
+import { getResults } from "./action";
+import { Button } from "@/components/ui/button";
 type Props = {
   questions: QuestionColumnType[];
   quizId?: number;
@@ -254,9 +267,45 @@ const SingleQuiz = ({
                 )}
               </div>
               <div className="gap-1 grid col-span-2">
-                <SubmitButton isLoading={form.formState.isSubmitting}>
-                  Submit Answers
-                </SubmitButton>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <SubmitButton
+                      type="button"
+                      isLoading={form.formState.isSubmitting}
+                    >
+                      Submit Answers
+                    </SubmitButton>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Please make sure you've answered all questions.
+                        {
+                          <p className="text-red-500">
+                            {" "}
+                            {questions.length -
+                              Object.values(form.getValues("questions") || {})
+                                .length}{" "}
+                            questions not answered.
+                          </p>
+                        }
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <SubmitButton
+                        isLoading={form.formState.isSubmitting}
+                        type="button"
+                        onClick={form.handleSubmit(onSubmit)}
+                      >
+                        Submit Answers
+                      </SubmitButton>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </form>
           </Form>

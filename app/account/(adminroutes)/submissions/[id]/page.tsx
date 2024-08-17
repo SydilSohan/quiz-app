@@ -22,7 +22,7 @@ const TakenIdPage = async ({ params }: Props) => {
     .single();
   if (error) return <div>An error occured fetching submission</div>;
   return (
-    <>
+    <main className="space-y-2 w-full">
       <Card className="w-full ">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <div className="space-y-1">
@@ -68,7 +68,7 @@ const TakenIdPage = async ({ params }: Props) => {
         score={data.score ?? 0}
         key={data.id}
       />
-    </>
+    </main>
   );
 };
 

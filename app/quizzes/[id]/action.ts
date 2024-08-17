@@ -34,7 +34,7 @@ export async function getResults({answers, quizId}: {answers: ExamPageFormSchema
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     const answer = answers[question.id];
-    if (question.answer.toLowerCase() === answer?.answer.toLowerCase()) {
+    if (question.answer.toLowerCase() === answer?.answer?.toLowerCase()) {
       score++;
       if (question.type === 'mcq') mcqScore++;
       if (question.type === 'truefalse') trueFalseScore++;
@@ -47,7 +47,7 @@ export async function getResults({answers, quizId}: {answers: ExamPageFormSchema
       name: question.name,  
       questionId: question.id,
       answer: answer?.answer || 'No answer',
-      isCorrect: question.answer.toLowerCase() === answer?.answer.toLowerCase(),
+      isCorrect: question.answer.toLowerCase() === answer?.answer?.toLowerCase(),
       correctAnswer : hidden_answers ? null : question.answer,
     }); 
   }

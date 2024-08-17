@@ -4,6 +4,8 @@ import ExamForm from "./QuizForm";
 
 import { createClient } from "@/utils/supabase/server";
 import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { redirect } from "next/navigation";
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
@@ -27,10 +29,11 @@ async function Page({
   if (type === "compose")
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Skeleton className="w-full h-full" />}>
           <ExamForm quiz={data} user={user} />
         </Suspense>
       </main>
     );
+  else redirect("/quizzes/" + params.type[0]);
 }
 export default Page;

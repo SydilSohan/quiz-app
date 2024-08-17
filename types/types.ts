@@ -74,3 +74,8 @@ export type SupabaseUser = {
   providers: string[] | null;
   userName: string | null;
 };
+export type TablesEnum = "profiles" | "quizzes" | 'submissions' 
+export type TableCommonReturn =  {
+    id: number;
+    name: string;
+  }[] | null;

@@ -1,4 +1,4 @@
-import ExamPage from "@/app/exam/[id]/page";
+import ExamPage from "@/app/quizzes/[id]/page";
 import React from "react";
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
 };
 
 const page = ({ params }: Props) => {
-  return <ExamPage params={params}></ExamPage>;
+  return <ExamPage params={params} />;
 };
 
 export default page;

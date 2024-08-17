@@ -94,7 +94,7 @@ export const QuizValuesSchema = z.object({
 });
 const ansSchema = z.object({
   questionId: z.string(),
-  answer: z.string().min(1, "Answer is required"),
+  answer: z.string().optional(),
 });
 
 export const promptSchema = z.object({

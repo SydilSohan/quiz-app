@@ -29,9 +29,9 @@ export default function ResultsCard({
       <AccordionItem value="details">
         <AccordionTrigger>Details</AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-gray-700">
-          <ScrollArea className="h-52">
+          <ScrollArea className="h-64">
             {quiz_results?.map((result) => (
-              <div className="my-4">
+              <div key={result.questionId} className="my-4">
                 <h3> {result.name} </h3>
                 <div className="flex gap-4">
                   <span className="font-semibold"> Your answer:</span>

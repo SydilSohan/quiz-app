@@ -62,8 +62,8 @@ export async function generateQuiz({topic, prompt, number_of_questions, difficul
         "content": `Generate a quiz with ${number_of_questions} questions with prompt ${prompt} and ${difficulty} difficulty `
       }
     ],
-    "model": "llama-3.1-8b-instant",
-    "temperature": 0.5,
+    "model": "llama-3.1-70b-versatile",
+    "temperature": 1,
     "max_tokens": 8000,
     "top_p": 1,
     "stream": false,

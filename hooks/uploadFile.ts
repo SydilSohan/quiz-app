@@ -1,4 +1,4 @@
-import { ActionResponse } from "@/app/exam/[id]/action";
+import { ActionResponse } from '@/app/quizzes/[id]/action';
 import { createClient } from '../utils/supabase/client';
    export async function uploadFile(
       file: File,
